@@ -1,6 +1,6 @@
 # Como o projeto funciona (explicado para quem chegou agora)
 
-Este documento responde, em linguagem simples: **o que é, para que serve, como abrir, como a tela (SCADA) controla o Ladder e o que é real × simulado.** Se alguém de fora perguntar sobre o projeto, comece por aqui (depois: [INICIO_RAPIDO](INICIO_RAPIDO.md) para rodar, [LADDER_EXPLICADO](LADDER_EXPLICADO.md) para a lógica e [LIGACAO_BACKEND_CODESYS](LIGACAO_BACKEND_CODESYS.md) para a ponte com o CLP); as respostas rápidas estão na seção [Perguntas de quem chega de fora](#perguntas-de-quem-chega-de-fora).
+Este documento responde, em linguagem simples: **o que é, para que serve, como abrir, como a tela (SCADA) controla o Ladder e o que é real × simulado.** Se alguém de fora perguntar sobre o projeto, comece por aqui (depois: [INICIO_RAPIDO](../guias/INICIO_RAPIDO.md) para rodar, [LADDER_EXPLICADO](LADDER_EXPLICADO.md) para a lógica e [LIGACAO_BACKEND_CODESYS](LIGACAO_BACKEND_CODESYS.md) para a ponte com o CLP); as respostas rápidas estão na seção [Perguntas de quem chega de fora](#perguntas-de-quem-chega-de-fora).
 
 ## 1. Em uma frase
 Uma **extrusora de impressão 3D de grande formato (LFAM)** é controlada por um **programa em Ladder** (a linguagem gráfica dos CLPs) que roda num **CLP virtual (CODESYS Control Win)**; uma **tela web (SCADA)** mostra o processo e envia *pedidos* ao CLP por um servidor intermediário; como não há máquina real, uma **planta simulada** faz o papel dos sensores e atuadores.
@@ -8,7 +8,7 @@ Uma **extrusora de impressão 3D de grande formato (LFAM)** é controlada por um
 ## 2. O problema
 Uma extrusora LFAM aquece plástico em cinco zonas (~330 a 375 °C), mantém tudo quente por 15 minutos antes de começar ("encharque"), empurra o material com uma rosca de 17 a 34 rpm e vigia pressão (alarme em 16,5 MPa, parada em 17 MPa), ventilação do motor, falta de material e sensores rompidos. Tudo isso precisa de **sequência, intertravamentos e falhas que ficam travadas até alguém reconhecer** — trabalho típico de um CLP.
 
-O trabalho acadêmico (Automação Industrial) propõe o projeto com um Siemens S7-1200. Para **provar que a lógica funciona** sem comprar hardware, ela foi implementada e executada em um CLP **virtual** (CODESYS Control Win). As diferenças entre o projeto proposto e o que foi executado estão em [SOURCE_RECONCILIATION.md](SOURCE_RECONCILIATION.md).
+O trabalho acadêmico (Automação Industrial) propõe o projeto com um Siemens S7-1200. Para **provar que a lógica funciona** sem comprar hardware, ela foi implementada e executada em um CLP **virtual** (CODESYS Control Win). As diferenças entre o projeto proposto e o que foi executado estão em [SOURCE_RECONCILIATION.md](../academico/SOURCE_RECONCILIATION.md).
 
 ## 3. As peças
 
@@ -50,14 +50,14 @@ O selo no canto da tela diz sempre em que modo você está.
 |---|---|---|
 | Quem executa o Ladder | Um **avaliador em Python** (cópia fiel da mesma estrutura) | O **CODESYS Control Win** (o programa real compilado) |
 | Precisa de CODESYS? | **Não** (abre em qualquer PC) | Sim (Windows, runtime iniciado) |
-| Tempo | Pode ser acelerado (×30) para demonstrar rápido | Tempo **real** (encharque = 15 min de verdade) |
+| Tempo | Pode ser acelerado pelo seletor da tela (**Apresentação 90×**: demonstração completa em ~2 min) | Tempo **real** (encharque = 15 min de verdade; não dá para acelerar sem mudar o Ladder) |
 | Serve para | Ver e demonstrar a interface, treinar o fluxo | **Provar** que o Ladder real executa e responde |
 | Planta | Simulada | **Continua simulada** (não há máquina) |
 
 ## 6. O que é real e o que é simulado
 - **Real:** o Ladder (gráfico, importado e compilado no CODESYS), sua execução no Control Win, o canal OPC UA criptografado, os PIDs `Util.PID` da biblioteca oficial, os temporizadores e a lógica de falhas/reset.
 - **Simulado:** a máquina inteira (temperaturas, pressão, rotação, sensores), a sintonia dos PIDs e a escala do inversor são **hipóteses didáticas**, não calibradas. **Nenhum resultado aqui autoriza comandar uma máquina real.**
-- **Onde está provado:** [IMPLEMENTATION_REPORT.md](IMPLEMENTATION_REPORT.md) lista cada requisito com a evidência. Os ensaios no CLP estão em `docs/evidence/` (`CP3_ROUNDTRIP_OK.txt`, `CP4_ONLINE_SCENARIOS.txt`).
+- **Onde está provado:** [IMPLEMENTATION_REPORT.md](../projeto/IMPLEMENTATION_REPORT.md) lista cada requisito com a evidência. Os ensaios no CLP estão em `docs/evidence/` (`CP3_ROUNDTRIP_OK.txt`, `CP4_ONLINE_SCENARIOS.txt`).
 
 ## 7. Como abrir (escolha o caminho)
 
@@ -72,7 +72,7 @@ cd scada\web ; npm install ; npm run dev          # abra http://localhost:5173
 ```
 Passo a passo da demonstração: *Ligar aquecimento* → aguarde *PRONTO* → *Iniciar extrusão* → aba *Alarmes* para injetar uma falha de pressão → *Reset*.
 
-**B. Ver o Ladder rodando de verdade (CLP virtual):** siga [INSTALLATION_COMPLETE.md](INSTALLATION_COMPLETE.md) (instalar CODESYS) e depois [MODO_PLC.md](MODO_PLC.md) (certificados, símbolos, backend em modo PLC). O script `tools/cp3_roundtrip.py` prova a ida e volta; `tools/cp4_scenarios.py` roda os cenários completos.
+**B. Ver o Ladder rodando de verdade (CLP virtual):** siga [INSTALLATION_COMPLETE.md](../guias/INSTALLATION_COMPLETE.md) (instalar CODESYS) e depois [MODO_PLC.md](../guias/MODO_PLC.md) (certificados, símbolos, backend em modo PLC). O script `tools/cp3_roundtrip.py` prova a ida e volta; `tools/cp4_scenarios.py` roda os cenários completos.
 
 **C. Abrir o projeto CODESYS:** `codesys/LFAM_Automacao_Ladder.project` (Ladder completo + objetos OPC UA). O `LFAM_Automacao.project` da raiz é o projeto original do grupo e **não é alterado**. Para ver as 15 redes sem abrir o CODESYS: [LADDER.md](LADDER.md).
 
@@ -116,7 +116,7 @@ references/          materiais do grupo (NÃO versionados)
 
 **Como sei se estou vendo dados reais do CLP?** O selo no topo: `DEMO / SIMULADO` (sem CLP) ou `LÓGICA NO CLP · PLANTA SIMULADA`. Se o heartbeat para, aparece `SEM COMUNICAÇÃO` e os valores deixam de ser coloridos.
 
-**O que foi testado de verdade?** Importação e compilação do Ladder (0 erros), execução no Control Win, ida e volta tela→CLP→tela, cenários de falha no CLP (termopar, inversor, K1 colado, emergência lógica, pressão, ventilador, falta de material), 80+ testes automáticos e E2E da interface. Ver [IMPLEMENTATION_REPORT.md](IMPLEMENTATION_REPORT.md).
+**O que foi testado de verdade?** Importação e compilação do Ladder (0 erros), execução no Control Win, ida e volta tela→CLP→tela, cenários de falha no CLP (termopar, inversor, K1 colado, emergência lógica, pressão, ventilador, falta de material), 80+ testes automáticos e E2E da interface. Ver [IMPLEMENTATION_REPORT.md](../projeto/IMPLEMENTATION_REPORT.md).
 
 **O que NÃO foi provado?** Sintonia real dos PIDs, escala do inversor, PROFINET/S7-1200 e qualquer máquina física.
 
@@ -124,8 +124,8 @@ references/          materiais do grupo (NÃO versionados)
 
 **E se o CLP cair?** O heartbeat para, a tela marca `SEM COMUNICAÇÃO`, desabilita comandos e descarta pedidos pendentes; ao voltar, nada é reenviado sozinho.
 
-**Onde estão os erros que foram encontrados?** O ensaio no CLP real achou defeitos que os testes em Python não viam (temporizadores zerados na importação e falso alarme de sobretemperatura com termopar aberto); estão relatados em [IMPLEMENTATION_REPORT.md](IMPLEMENTATION_REPORT.md) e corrigidos.
+**Onde estão os erros que foram encontrados?** O ensaio no CLP real achou defeitos que os testes em Python não viam (temporizadores zerados na importação e falso alarme de sobretemperatura com termopar aberto); estão relatados em [IMPLEMENTATION_REPORT.md](../projeto/IMPLEMENTATION_REPORT.md) e corrigidos.
 
 **Quem decide a lógica de segurança?** Somente o Ladder. Backend e tela repetem **nenhuma** regra de segurança.
 
-**Como contribuir/rodar os testes?** `pytest -q tests` e, na pasta `scada/web`, `npx playwright test` (exige o backend DEMO). Detalhes em [SCADA_RUN.md](SCADA_RUN.md).
+**Como contribuir/rodar os testes?** `pytest -q tests` e, na pasta `scada/web`, `npx playwright test` (exige o backend DEMO). Detalhes em [SCADA_RUN.md](../guias/SCADA_RUN.md).

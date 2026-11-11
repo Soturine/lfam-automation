@@ -47,7 +47,7 @@ function Find-CodesysMcpBridges {
 
 function Get-DefaultCodesysExe {
     $all = @(Get-CodesysInstallations)
-    if ($all.Count -eq 0) { throw 'CODESYS.exe nao encontrado. Informe -Exe ou instale o CODESYS (docs/INSTALLATION_COMPLETE.md).' }
+    if ($all.Count -eq 0) { throw 'CODESYS.exe nao encontrado. Informe -Exe ou instale o CODESYS (docs/guias/INSTALLATION_COMPLETE.md).' }
     if ($all.Count -gt 1) { Write-Warning ('Varias instalacoes encontradas; usando a primeira. Use -Exe para escolher. ({0})' -f ($all.Version -join ', ')) }
     $all[0].Exe
 }

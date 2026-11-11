@@ -15,7 +15,7 @@ Regra: compilar **não** é executar; DEMO **não** é CLP.
 | Rede 14 (R_TRIG + CTU) | prompt §4 | blocos `R_TRIG`/`CTU` | contagem por borda e reset | `test_ladder_pid.py` | **COMPROVADO no avaliador** |
 | Escalonamento do inversor | prompt P3 | `INV_REF` com escala **hipotética** (16384 = 60 Hz) | limites 17–34 rpm | testes | **IMPLEMENTADO** (escala a confirmar com o inversor) |
 | Simulador físico | prompt §6 | `simulator/lfam_sim.py` (1ª ordem, acoplamento, pressão, falhas) | 9 pytest | `tests/test_simulator.py` | **SOMENTE PROTÓTIPO** (parâmetros hipotéticos, não calibrado) |
-| Backend FastAPI + WebSocket | prompt §6 | `backend/` (comandos = solicitações, setpoints validados) | 12 pytest + E2E | `tests/`, `docs/SCADA_RUN.md` | **COMPROVADO em DEMO** |
+| Backend FastAPI + WebSocket | prompt §6 | `backend/` (comandos = solicitações, setpoints validados) | 12 pytest + E2E | `tests/`, `docs/guias/SCADA_RUN.md` | **COMPROVADO em DEMO** |
 | SCADA React/TS, 6 telas, DEMO | prompt §5/§11 | `scada/web` | build + 2 E2E Playwright, 4 tamanhos, sem scroll horizontal | `evidence/scada/*.png` | **COMPROVADO em DEMO** |
 | Modo PLC no backend (cliente OPC UA) | prompt §6, addendum P1 | `backend/transport.py` | 7 testes contra servidor de **teste** (dublê) | `tests/test_opcua_transport.py` | **COMPROVADO contra o Control Win** (canal Basic256Sha256 SignAndEncrypt; leituras em lotes de 50) |
 | Servidor OPC UA do Control Win | docs oficiais | Communication Manager + OPC UA Server + Symbol Configuration (UI do IDE) e certificados na Tela de segurança | conexão real, símbolos publicados | `evidence/CP3_ROUNDTRIP_OK.txt` | **COMPROVADO** |
@@ -30,7 +30,7 @@ Regra: compilar **não** é executar; DEMO **não** é CLP.
 As pranchas do grupo são desenhos **didáticos para S7-1200**; o projeto executável é CODESYS. Divergências documentadas em `SOURCE_RECONCILIATION.md` (inclui o erro de colocar contatos antes do PID_Compact).
 
 ## Reproduzir
-`docs/INSTALLATION_COMPLETE.md` (ambiente) · `docs/SCADA_RUN.md` (DEMO) · `docs/MODO_PLC.md` (modo PLC). Gate local: `pytest -q tests` + build headless (`tools/codesys_scripts/build_program.py`).
+`docs/guias/INSTALLATION_COMPLETE.md` (ambiente) · `docs/guias/SCADA_RUN.md` (DEMO) · `docs/guias/MODO_PLC.md` (modo PLC). Gate local: `pytest -q tests` + build headless (`tools/codesys_scripts/build_program.py`).
 
 ## Limitações honestas
 Nenhum resultado aqui autoriza comandar máquina real. Emergência é hardware independente. Pressão/ganhos/escala do inversor/tensão do sistema (monofásico × trifásico) são **hipóteses** a validar.

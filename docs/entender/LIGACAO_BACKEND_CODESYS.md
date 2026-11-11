@@ -1,7 +1,7 @@
 # Como o backend se liga ao CODESYS
 
 Este documento explica **a ponte** entre o backend (Python/FastAPI) e o Ladder que roda no CODESYS Control Win: o que existe de cada lado, como as variáveis viajam, como a segurança funciona e **o que fazer quando dá erro** (todos os erros abaixo aconteceram de verdade durante o desenvolvimento).
-Passo a passo de configuração no IDE: [MODO_PLC.md](MODO_PLC.md). Visão geral: [COMO_FUNCIONA.md](COMO_FUNCIONA.md).
+Passo a passo de configuração no IDE: [MODO_PLC.md](../guias/MODO_PLC.md). Visão geral: [COMO_FUNCIONA.md](COMO_FUNCIONA.md).
 
 ## 1. A ideia
 O CLP virtual **expõe** as variáveis do programa por um **servidor OPC UA** (padrão industrial). O backend é um **cliente OPC UA**: a cada ciclo escreve as entradas permitidas e lê o estado de volta. Nenhum outro canal liga os dois.
@@ -71,4 +71,4 @@ No modo PLC, **a planta continua simulada**: o backend roda `simulator/lfam_sim.
 `/api/health` mostra `link_error` com a causa exata.
 
 ## 7. Como o programa chega ao CLP (resumo)
-`python tools/gen_ld_xml.py` → `codesys/exports/LFAM_PROGRAM.xml` → `tools/codesys_scripts/build_program.py` (importa no projeto, adiciona a biblioteca Util, define `MainTask` = 100 ms, compila) → no IDE: *Logon → Download → Iniciar*. Detalhes: [INSTALLATION_COMPLETE.md](INSTALLATION_COMPLETE.md).
+`python tools/gen_ld_xml.py` → `codesys/exports/LFAM_PROGRAM.xml` → `tools/codesys_scripts/build_program.py` (importa no projeto, adiciona a biblioteca Util, define `MainTask` = 100 ms, compila) → no IDE: *Logon → Download → Iniciar*. Detalhes: [INSTALLATION_COMPLETE.md](../guias/INSTALLATION_COMPLETE.md).

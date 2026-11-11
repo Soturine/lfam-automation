@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
-// Pré-requisitos (não iniciados aqui): backend em :8000 (LFAM_TIME_SCALE=30) e `npm run dev` em :5173. Ver docs/SCADA_RUN.md.
+// Pré-requisitos (não iniciados aqui): backend em :8000 (LFAM_TIME_SCALE=30) e `npm run dev` em :5173. Ver docs/guias/SCADA_RUN.md.
 export default defineConfig({
   testDir: "./e2e",
   timeout: 240_000,

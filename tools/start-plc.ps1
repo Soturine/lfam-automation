@@ -1,7 +1,7 @@
 <#
   Sobe o backend em modo PLC (Ladder rodando no CODESYS Control Win via OPC UA criptografado).
   A senha e pedida de forma OCULTA e fica somente na memoria desta sessao: nao e gravada em arquivo nem registrada.
-  Pre-requisitos: docs\MODO_PLC.md (Control Win iniciado, OPC UA/certificados/simbolos configurados e aplicacao em execucao).
+  Pre-requisitos: docs\guias\MODO_PLC.md (Control Win iniciado, OPC UA/certificados/simbolos configurados e aplicacao em execucao).
   Uso (PowerShell na RAIZ do repositorio):
       powershell -ExecutionPolicy Bypass -File .\tools\start-plc.ps1 -User admin
       powershell -ExecutionPolicy Bypass -File .\tools\start-plc.ps1 -User admin -Url opc.tcp://localhost:4840 -Web

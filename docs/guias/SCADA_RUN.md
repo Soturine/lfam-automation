@@ -1,7 +1,7 @@
 # Executar o SCADA
 
 Pré-requisitos: Python 3.12 com `.venv` (`pip install -r requirements-dev.txt`) e Node LTS (`cd scada/web; npm install`).
-Explicação geral do que é cada parte: [COMO_FUNCIONA.md](COMO_FUNCIONA.md).
+Explicação geral do que é cada parte: [COMO_FUNCIONA.md](../entender/COMO_FUNCIONA.md).
 
 ## Modo DEMO (sem CODESYS)
 ```powershell
@@ -13,6 +13,8 @@ $env:LFAM_TIME_SCALE = "30"
 cd scada\web
 npm run dev          # http://localhost:5173
 ```
+A velocidade pode ser trocada **na própria tela** (seletor no topo, só no DEMO): **Tempo real**, **Rápido 30×** ou **Apresentação 90×** (partida até a extrusão em ~15 s; demonstração completa em ~2 min). Via API: `POST /api/demo/speed {"scale": 90}` (1 a 150).
+
 A tela mostra o selo **DEMO / SIMULADO**: a lógica é o programa Ladder gerado executado por um avaliador em Python, **não** o Control Win.
 
 ## Modo PLC (Ladder rodando no CODESYS Control Win)

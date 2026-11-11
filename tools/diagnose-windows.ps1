@@ -37,7 +37,7 @@ $sac = (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy' -Err
 if ($null -ne $sac) {
     $txt = switch ($sac) { 0 {'desligado'} 1 {'ATIVO (pode bloquear DLLs nao assinadas)'} 2 {'avaliacao'} default {"desconhecido ($sac)"} }
     Info "Smart App Control: $txt"
-    if ($sac -eq 1) { Warn 'Smart App Control ativo: o bridge do MCP pode ser bloqueado (veja docs/MCP_TROUBLESHOOTING.md).' }
+    if ($sac -eq 1) { Warn 'Smart App Control ativo: o bridge do MCP pode ser bloqueado (veja docs/guias/MCP_TROUBLESHOOTING.md).' }
 }
 
 # --- Ferramentas de desenvolvimento -------------------------------------------
@@ -108,4 +108,4 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 
 Write-Host "`n== Resumo: $script:fail falha(s), $script:warn aviso(s) ==" -ForegroundColor Cyan
 Write-Host 'Este script NAO verifica: licencas (use Ferramentas > Gestor de licencas), servidor MCP habilitado no IDE,'
-Write-Host 'login no dispositivo, compilacao ou aplicacao em execucao. Veja docs/INSTALLATION_COMPLETE.md (checklist final).'
+Write-Host 'login no dispositivo, compilacao ou aplicacao em execucao. Veja docs/guias/INSTALLATION_COMPLETE.md (checklist final).'

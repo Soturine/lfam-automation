@@ -79,12 +79,12 @@ stateDiagram-v2
 ## 6. Quem escreve o quê (importante para a ligação com o backend)
 - **Entradas** (o mundo externo escreve; o Ladder só lê): botões `BT_*`, setpoints `SP_*`, sinais dos sensores `*_RAW`, `SEG_OK`, `VENT_OK`, `K1_CONF`, `INV_*`… No modo PLC, **o backend escreve estas** (as de sensor vêm da planta simulada).
 - **Saídas e estados** (o Ladder escreve; o resto só lê): `K1_AQUEC`, `SSR_*`, `INV_RUN`, `INV_REF`, `EST_*`, `FALHA_GERAL`, `CAUSA_*`, luzes. O backend **nunca** escreve nelas.
-- Lista completa com tipo e sentido: [tags.csv](tags.csv).
+- Lista completa com tipo e sentido: [tags.csv](../projeto/tags.csv).
 
 ## 7. Como isso foi verificado
 - **Lógica (avaliador Python do mesmo modelo):** testes por rede em `tests/` (limiares, temporizadores, selo, reset com cada causa, PWM, anti-windup).
-- **No CLP real (Control Win):** [CP3](evidence/CP3_ROUNDTRIP_OK.txt) e [CP4 cenários](evidence/CP4_ONLINE_SCENARIOS.txt). Esse ensaio achou defeitos que o avaliador não via (presets de TON zerados na importação) — por isso os dois níveis de teste existem.
-- **PID:** o `Util.PID` real foi comparado com o modelo: [CP4_PID_COMPARE](evidence/CP4_PID_COMPARE.txt). Os ganhos (KP 8 %/°C, TN 20 s nas zonas) são **hipotéticos**, ainda sem sintonia numa máquina real.
+- **No CLP real (Control Win):** [CP3](../evidence/CP3_ROUNDTRIP_OK.txt) e [CP4 cenários](../evidence/CP4_ONLINE_SCENARIOS.txt). Esse ensaio achou defeitos que o avaliador não via (presets de TON zerados na importação) — por isso os dois níveis de teste existem.
+- **PID:** o `Util.PID` real foi comparado com o modelo: [CP4_PID_COMPARE](../evidence/CP4_PID_COMPARE.txt). Os ganhos (KP 8 %/°C, TN 20 s nas zonas) são **hipotéticos**, ainda sem sintonia numa máquina real.
 
 ## 8. Como o Ladder foi criado
 O CODESYS não é "desenhado por IA": um gerador em Python (`codesys/generator`) descreve as redes (contatos, séries, paralelos, blocos) e produz **PLCopen XML**, que o CODESYS importa e compila (`tools/codesys_scripts/build_program.py`). O mesmo modelo alimenta o avaliador de testes e os desenhos de [LADDER.md](LADDER.md) (`tools/render_ladder.py`).

@@ -10,7 +10,7 @@ Projeto acadêmico de Automação Industrial — **não é segurança certificad
 
 ## O que é, em 30 segundos
 - Um **programa Ladder** (15 redes, 6 PIDs `Util.PID`, temporizadores, falhas travadas) decide tudo: aquece 5 zonas, espera 15 min de encharque, libera a extrusão e protege contra falhas.
-- Ele roda no **CODESYS Control Win** (CLP virtual). Veja as redes em [docs/LADDER.md](docs/LADDER.md).
+- Ele roda no **CODESYS Control Win** (CLP virtual). Veja as redes em [docs/entender/LADDER.md](docs/entender/LADDER.md).
 - Uma **tela web** (React) mostra o processo e **só envia pedidos**; o sucesso aparece **depois** que o CLP confirma.
 - Entre os dois há um **backend FastAPI** que fala com o CLP por **OPC UA criptografado**.
 - Como não existe a máquina, uma **planta simulada** devolve temperaturas, pressão e falhas.
@@ -24,7 +24,7 @@ flowchart LR
     SIM -->|"termopares, pressão"| API
 ```
 
-**Leia primeiro:** [docs/COMO_FUNCIONA.md](docs/COMO_FUNCIONA.md) — explica passo a passo como o clique na tela vira uma variável no Ladder e volta, o que é real × simulado, glossário e perguntas de quem chega de fora.
+**Leia primeiro:** [docs/entender/COMO_FUNCIONA.md](docs/entender/COMO_FUNCIONA.md) — explica passo a passo como o clique na tela vira uma variável no Ladder e volta, o que é real × simulado, glossário e perguntas de quem chega de fora.
 
 ## Telas
 <table>
@@ -34,21 +34,23 @@ flowchart LR
 </tr>
 </table>
 
-Capturas de cada tela e dos estados (normal, falha, sem comunicação): **[galeria](docs/GALERIA.md)**. Ladder em imagens: **[catálogo](docs/LADDER.md)**.
+Para apresentar: o seletor **Apresentação 90×** (no topo da tela, só no DEMO) faz a demonstração inteira caber em ~2 minutos.
+
+Capturas de cada tela e dos estados (normal, falha, sem comunicação): **[galeria](docs/entender/GALERIA.md)**. Ladder em imagens: **[catálogo](docs/entender/LADDER.md)**.
 
 ## O que funciona hoje
 | Parte | Estado | Onde ver |
 |---|---|---|
-| Ladder gráfico (15 redes, 110 elementos), importado e compilado no CODESYS | Funciona (0 erros, 0 avisos) | [catálogo do Ladder](docs/LADDER.md) |
+| Ladder gráfico (15 redes, 110 elementos), importado e compilado no CODESYS | Funciona (0 erros, 0 avisos) | [catálogo do Ladder](docs/entender/LADDER.md) |
 | Ladder executando no CODESYS Control Win | Funciona | [ensaio de ida e volta](docs/evidence/CP3_ROUNDTRIP_OK.txt) |
-| Tela → API → OPC UA → Ladder → tela | Funciona (comandos confirmados pelo CLP) | [como o backend se liga ao CODESYS](docs/LIGACAO_BACKEND_CODESYS.md) |
+| Tela → API → OPC UA → Ladder → tela | Funciona (comandos confirmados pelo CLP) | [como o backend se liga ao CODESYS](docs/entender/LIGACAO_BACKEND_CODESYS.md) |
 | Cenários de falha, reset, encharque de 15 min e pressão no CLP | Verificados em tempo real | [resultados dos cenários](docs/evidence/CP4_ONLINE_SCENARIOS.txt) |
-| SCADA de 6 telas, responsivo, com testes automáticos | Funciona (modo DEMO e modo CLP) | [galeria](docs/GALERIA.md) |
-| Sintonia dos PIDs, escala do inversor, parâmetros da planta | **Hipóteses** (não calibradas) | [relatório técnico](docs/IMPLEMENTATION_REPORT.md) |
-| Máquina física, PROFINET, Siemens S7-1200 | **Não testado** (proposta acadêmica) | [fontes e decisões](docs/SOURCE_RECONCILIATION.md) |
+| SCADA de 6 telas, responsivo, com testes automáticos | Funciona (modo DEMO e modo CLP) | [galeria](docs/entender/GALERIA.md) |
+| Sintonia dos PIDs, escala do inversor, parâmetros da planta | **Hipóteses** (não calibradas) | [relatório técnico](docs/projeto/IMPLEMENTATION_REPORT.md) |
+| Máquina física, PROFINET, Siemens S7-1200 | **Não testado** (proposta acadêmica) | [fontes e decisões](docs/academico/SOURCE_RECONCILIATION.md) |
 
 ## Como abrir (três níveis)
-Guia completo: **[docs/INICIO_RAPIDO.md](docs/INICIO_RAPIDO.md)**.
+Guia completo: **[docs/guias/INICIO_RAPIDO.md](docs/guias/INICIO_RAPIDO.md)**.
 
 **1. Ver a tela funcionando (qualquer PC com Python e Node, ~10 min, sem CODESYS):**
 ```powershell
@@ -57,22 +59,23 @@ powershell -ExecutionPolicy Bypass -File .\tools\setup.ps1          # instala tu
 powershell -ExecutionPolicy Bypass -File .\tools\start-demo.ps1     # sobe backend + tela e abre o navegador
 ```
 **2. Testes:** `powershell -ExecutionPolicy Bypass -File .\tools\run-tests.ps1` (`-E2E` inclui a interface).
-**3. Ladder de verdade no CODESYS:** [instalação](docs/INSTALLATION_COMPLETE.md) → [modo PLC](docs/MODO_PLC.md) → `tools\start-plc.ps1 -User SEU_USUARIO -Web` (a senha é pedida de forma oculta).
+**3. Ladder de verdade no CODESYS:** [instalação](docs/guias/INSTALLATION_COMPLETE.md) → [modo PLC](docs/guias/MODO_PLC.md) → `tools\start-plc.ps1 -User SEU_USUARIO -Web` (a senha é pedida de forma oculta).
 **Projeto CODESYS:** `codesys/LFAM_Automacao_Ladder.project` (o `LFAM_Automacao.project` da raiz é o original do grupo e não é alterado).
 
 ## Documentação
 | Para quê | Documento |
 |---|---|
-| Entender o projeto do zero | [COMO_FUNCIONA](docs/COMO_FUNCIONA.md) |
-| Ver as telas e animações | [GALERIA](docs/GALERIA.md) |
-| Usar em outro PC (passo a passo) | [INICIO_RAPIDO](docs/INICIO_RAPIDO.md) |
-| Entender o Ladder (etapa por etapa) | [LADDER_EXPLICADO](docs/LADDER_EXPLICADO.md) · [imagens das 15 redes](docs/LADDER.md) |
-| Como o backend fala com o CODESYS | [LIGACAO_BACKEND_CODESYS](docs/LIGACAO_BACKEND_CODESYS.md) |
-| Arquitetura técnica | [ARCHITECTURE](docs/ARCHITECTURE.md) |
-| Instalar e rodar | [INSTALLATION_COMPLETE](docs/INSTALLATION_COMPLETE.md) · [SCADA_RUN](docs/SCADA_RUN.md) · [modo PLC](docs/MODO_PLC.md) · [SETUP_WINDOWS](docs/SETUP_WINDOWS.md) · [MCP_TROUBLESHOOTING](docs/MCP_TROUBLESHOOTING.md) |
-| O que foi feito e provado | [IMPLEMENTATION_REPORT](docs/IMPLEMENTATION_REPORT.md) · [evidence](docs/evidence) · [AUDIT](docs/AUDIT_TESTS_AND_GENERATOR.md) |
-| Fontes, divergências e decisões | [SOURCE_RECONCILIATION](docs/SOURCE_RECONCILIATION.md) · [tags.csv](docs/tags.csv) |
-| Trabalho acadêmico | [ACADEMIC_COMPLIANCE](docs/ACADEMIC_COMPLIANCE.md) · [ROTEIRO_APRESENTACAO](docs/ROTEIRO_APRESENTACAO.md) |
+| **Índice de toda a documentação** | [docs/README.md](docs/README.md) |
+| Entender o projeto do zero | [COMO_FUNCIONA](docs/entender/COMO_FUNCIONA.md) |
+| Ver as telas e animações | [GALERIA](docs/entender/GALERIA.md) |
+| Usar em outro PC (passo a passo) | [INICIO_RAPIDO](docs/guias/INICIO_RAPIDO.md) |
+| Entender o Ladder (etapa por etapa) | [LADDER_EXPLICADO](docs/entender/LADDER_EXPLICADO.md) · [imagens das 15 redes](docs/entender/LADDER.md) |
+| Como o backend fala com o CODESYS | [LIGACAO_BACKEND_CODESYS](docs/entender/LIGACAO_BACKEND_CODESYS.md) |
+| Arquitetura técnica | [ARCHITECTURE](docs/entender/ARCHITECTURE.md) |
+| Instalar e rodar | [INSTALLATION_COMPLETE](docs/guias/INSTALLATION_COMPLETE.md) · [SCADA_RUN](docs/guias/SCADA_RUN.md) · [modo PLC](docs/guias/MODO_PLC.md) · [SETUP_WINDOWS](docs/guias/SETUP_WINDOWS.md) · [MCP_TROUBLESHOOTING](docs/guias/MCP_TROUBLESHOOTING.md) |
+| O que foi feito e provado | [IMPLEMENTATION_REPORT](docs/projeto/IMPLEMENTATION_REPORT.md) · [evidence](docs/evidence) · [AUDIT](docs/projeto/AUDIT_TESTS_AND_GENERATOR.md) |
+| Fontes, divergências e decisões | [SOURCE_RECONCILIATION](docs/academico/SOURCE_RECONCILIATION.md) · [tags.csv](docs/projeto/tags.csv) |
+| Trabalho acadêmico | [ACADEMIC_COMPLIANCE](docs/academico/ACADEMIC_COMPLIANCE.md) · [ROTEIRO_APRESENTACAO](docs/academico/ROTEIRO_APRESENTACAO.md) |
 
 ## Estrutura
 `codesys/` gerador e XML do Ladder · `backend/` FastAPI e transportes (DEMO/OPC UA) · `scada/web/` interface React · `simulator/` planta · `tools/` scripts (gerar, compilar, ensaiar, gravar mídia) · `tests/` pytest · `docs/` guias e evidências.
@@ -84,4 +87,4 @@ Diagnóstico do ambiente Windows: `.\tools\diagnose-windows.ps1`.
 Projeto **educacional / simulador**. HMI e software de controle comum **não substituem** parada de emergência (circuito de hardware independente), dispositivos de segurança certificados, análise de riscos nem comissionamento. Nunca escrever comandos em máquina física sem avaliação e autorização. Credenciais ficam **somente** em variáveis de ambiente da sessão; nada de segredos, licenças ou tickets no repositório.
 
 ## Contexto acadêmico
-Trabalho multidisciplinar de Automação Industrial: monografia escrita à mão, apresentação oral de 20 minutos e arguição. A proposta usa Siemens S7-1200; a demonstração executável usa CODESYS Control Win — as diferenças estão em [SOURCE_RECONCILIATION](docs/SOURCE_RECONCILIATION.md). Materiais de terceiros e do grupo (`references/`) não são versionados; revise licenças antes de tornar o repositório público.
+Trabalho multidisciplinar de Automação Industrial: monografia escrita à mão, apresentação oral de 20 minutos e arguição. A proposta usa Siemens S7-1200; a demonstração executável usa CODESYS Control Win — as diferenças estão em [SOURCE_RECONCILIATION](docs/academico/SOURCE_RECONCILIATION.md). Materiais de terceiros e do grupo (`references/`) não são versionados; revise licenças antes de tornar o repositório público.

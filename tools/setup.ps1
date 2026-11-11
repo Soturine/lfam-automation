@@ -3,7 +3,7 @@
   Uso (PowerShell aberto na RAIZ do repositorio):
       powershell -ExecutionPolicy Bypass -File .\tools\setup.ps1            # instalacao para rodar o DEMO
       powershell -ExecutionPolicy Bypass -File .\tools\setup.ps1 -Tests     # + navegador do Playwright (testes E2E)
-  Nao instala CODESYS (ver docs\INSTALLATION_COMPLETE.md) e nao altera nada fora da pasta do projeto.
+  Nao instala CODESYS (ver docs\guias\INSTALLATION_COMPLETE.md) e nao altera nada fora da pasta do projeto.
 #>
 param([switch]$Tests)
 $ErrorActionPreference = "Stop"

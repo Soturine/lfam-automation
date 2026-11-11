@@ -1,4 +1,4 @@
-"""Desenha as redes Ladder do programa gerado como SVG (uma imagem por rede) + docs/LADDER.md.
+"""Desenha as redes Ladder do programa gerado como SVG (uma imagem por rede) + docs/entender/LADDER.md.
 
 IMPORTANTE: estes desenhos sao gerados a partir do MESMO modelo (codesys/generator) que produz o PLCopen XML importado no
 CODESYS. Sao uma ilustracao fiel da estrutura (contatos, serie/paralelo, blocos, bobinas), NAO uma captura do editor do IDE.
@@ -245,8 +245,8 @@ def write_doc(index):
     ]
     for nid, name, titles in index:
         lines += [f"## Rede {nid:02d}" if nid else "## Redes auxiliares", "", DESC.get(nid, ""), "",
-                  f"![Rede {nid:02d}](media/ladder/{name})", ""]
-    (ROOT / "docs" / "LADDER.md").write_text("\n".join(lines), encoding="utf-8")
+                  f"![Rede {nid:02d}](../media/ladder/{name})", ""]
+    (ROOT / "docs" / "entender" / "LADDER.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ flowchart TB
 - **Planta simulada:** temperaturas (1ª ordem + acoplamento), pressão, rotação, falhas injetáveis. Não decide permissivos. Parâmetros hipotéticos.
 
 ## Contrato de dados
-`docs/tags.csv` (164 variáveis do programa gerado): nome, tipo IEC, unidade, sentido de escrita, origem e status. Variáveis de **entrada** (botões, setpoints, sensores simulados) são escritas pelo backend; **saídas e estados** são só leitura.
+`docs/projeto/tags.csv` (164 variáveis do programa gerado): nome, tipo IEC, unidade, sentido de escrita, origem e status. Variáveis de **entrada** (botões, setpoints, sensores simulados) são escritas pelo backend; **saídas e estados** são só leitura.
 
 ## Decisões de projeto que importam
 - **PID sem contatos antes:** os 5 PIDs e o do IR rodam **todo ciclo**; o bloqueio é no pino `RESET` e no portão do SSR (evita saída "congelada" mantendo aquecedor ligado).
@@ -47,4 +47,4 @@ flowchart TB
 Não é segurança certificada: a emergência é hardware independente. Não é validação de máquina real: ganhos de PID, escala do inversor (`INV_REF`, 16384 = 60 Hz) e parâmetros da planta são hipóteses. Endereços Siemens (`%I/%Q/%IW`) aparecem apenas em `tags.csv` (coluna acadêmica); o programa usa variáveis simbólicas.
 
 ## Riscos conhecidos e tratamento
-Ver [SOURCE_RECONCILIATION.md](SOURCE_RECONCILIATION.md) (D1–D25) e [AUDIT_TESTS_AND_GENERATOR.md](AUDIT_TESTS_AND_GENERATOR.md).
+Ver [SOURCE_RECONCILIATION.md](../academico/SOURCE_RECONCILIATION.md) (D1–D25) e [AUDIT_TESTS_AND_GENERATOR.md](../projeto/AUDIT_TESTS_AND_GENERATOR.md).

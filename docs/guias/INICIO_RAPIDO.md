@@ -28,7 +28,7 @@ O navegador abre em **http://localhost:5173**. Você deve ver o selo **DEMO / SI
 
 **Roteiro de demonstração (2 min):**
 1. Clique **Ligar aquecimento** → o botão mostra *Aguardando CLP…* e só vira *✓ Confirmado* quando o programa confirma.
-2. Espere o estado **Pronto** (o relógio é acelerado 30×; o encharque de 15 min leva ~30 s).
+2. Espere o estado **Pronto**. Para acelerar, use o seletor no canto superior direito: **Apresentação 90×** faz o encharque de 15 min passar em poucos segundos (a demonstração inteira cabe em ~2 min). O seletor só existe no DEMO.
 3. **Iniciar extrusão** → a rosca gira, pressão e rpm aparecem.
 4. Aba **Alarmes** → injete **pressão alta** → o programa **trava a falha** e mostra a causa.
 5. Remova a falha e clique **Reconhecer e resetar** → só funciona depois que a causa some.
@@ -56,7 +56,7 @@ powershell -ExecutionPolicy Bypass -File .\tools\start-plc.ps1 -User SEU_USUARIO
 3. Abra http://localhost:5173. O selo passa a **LÓGICA NO CLP · PLANTA SIMULADA**. Em `http://127.0.0.1:8000/api/health` você vê `plc_connected: true`.
 4. Prove a ida e volta: `.\.venv\Scripts\python.exe tools\cp3_roundtrip.py` (termina com `CP3 OK`). Ensaio completo (~1h30): `tools\cp4_scenarios.py`.
 
-Se algo falhar, a tabela de erros de [LIGACAO_BACKEND_CODESYS.md](LIGACAO_BACKEND_CODESYS.md) cobre os casos reais.
+Se algo falhar, a tabela de erros de [LIGACAO_BACKEND_CODESYS.md](../entender/LIGACAO_BACKEND_CODESYS.md) cobre os casos reais.
 
 ## Problemas comuns
 | Mensagem / sintoma | O que fazer |
@@ -77,4 +77,4 @@ cd scada/web && npm install && npm run dev            # http://localhost:5173
 ```
 
 ## O que você **não** deve esperar
-Isto é um projeto educacional: a **máquina é simulada**, os ganhos de PID e a escala do inversor são hipóteses, e a interface **não é** parada de emergência. Veja [COMO_FUNCIONA.md](COMO_FUNCIONA.md).
+Isto é um projeto educacional: a **máquina é simulada**, os ganhos de PID e a escala do inversor são hipóteses, e a interface **não é** parada de emergência. Veja [COMO_FUNCIONA.md](../entender/COMO_FUNCIONA.md).
