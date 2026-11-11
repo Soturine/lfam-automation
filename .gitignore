@@ -57,3 +57,7 @@ coverage/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Playwright / SCADA
+scada/web/test-results/
+scada/web/playwright-report/

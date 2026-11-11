@@ -114,3 +114,19 @@ def test_api_contract_and_demo_labeling():
     with client.websocket_connect("/ws") as ws:
         msg = ws.receive_json()
     assert msg["mode"] == "DEMO" and "timestamp" in msg
+
+
+def test_latched_cause_is_remembered_after_it_clears_until_reset():
+    eng = DemoEngine()
+    start_heating(eng)
+    run(eng, 1400, dt=0.5)
+    eng.request("BT_LIGA"); run(eng, 20, dt=0.5)
+    eng.inject("pressure_high", True)
+    run(eng, 20, dt=0.5)
+    s = eng.snapshot()
+    assert s["state"] == "FALHA_TRAVADA" and "PRESSAO_ALTA_17" in s["latched_causes"]
+    assert "PRESSAO_ALTA_17" not in s["causes"], "a causa ativa ja normalizou"
+    eng.inject("pressure_high", False)
+    eng.request("BT_RESET"); run(eng, 3, dt=0.5)
+    s = eng.snapshot()
+    assert s["state"] != "FALHA_TRAVADA" and s["latched_causes"] == []
