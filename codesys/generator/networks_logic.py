@@ -43,3 +43,18 @@ ALL = [NET04_M_CAUSA, NET04_SET, NET04_RESET, NET05_AQUEC, NET05_K1, NET07_RESF,
 
 def variables() -> dict:
     return variables_of(ALL)
+
+
+# Preservacao da PRIMEIRA causa: cada causa tem um latch CAUSA_<nome>, setado na varredura em que ela esta ativa e a falha
+# ainda NAO estava travada (antes de 04b), e resetado junto com a falha. Assim a causa nao se perde quando some sozinha.
+CAUSA_NAMES = ["SEG_OK", "MOT_SOBRETEMP", "INV_FALHA", "PRESSAO_ALTA_17", "SOBRETEMP_400", "TC_FAULT",
+               "FALHA_RESF_2M", "FALHA_SEM_MAT", "FALHA_VENT_10S", "FALHA_K1_COL"]
+NET04_FIRST = [
+    Rung(f"NETWORK 04d - primeira causa: CAUSA_{n} (set na varredura em que a falha ainda nao estava travada)",
+         S(CAUSAS[i], C("FALHA_GERAL", neg=True)), [Set(f"CAUSA_{n}")])
+    for i, n in enumerate(CAUSA_NAMES)
+] + [
+    Rung(f"NETWORK 04e - CAUSA_{n} reseta junto com a falha (BT_RESET e nenhuma causa ativa)",
+         S(C("BT_RESET"), C("M_CAUSA", neg=True)), [Reset(f"CAUSA_{n}")])
+    for n in CAUSA_NAMES
+]

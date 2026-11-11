@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from codesys.generator import networks_logic as N
 from codesys.generator.ld import scan, pou_xml
 
+TC_OK = {f"TC_Z{z}_OK": True for z in range(1, 6)}
 SAFE = dict(SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True)  # ativos-baixos em estado normal
 
 
@@ -108,3 +109,21 @@ def test_xml_is_wellformed_with_ld_body_and_single_writer_per_output():
     # EST_EXTRUSAO e EST_AQUEC/K1/RESF/M_CAUSA: uma unica bobina normal cada
     for v in ("EST_AQUEC", "K1_AQUEC", "RESF_ON", "M_CAUSA", "EST_EXTRUSAO"):
         assert plain.count(v) == 1, v
+
+
+def test_first_cause_is_latched_in_the_program_and_survives_until_reset():
+    from codesys.generator import program as PRG
+    env = {**SAFE, **TC_OK, "INV_FALHA": True}
+    env = scan(PRG.CORE, env, 0.1)
+    assert env["FALHA_GERAL"] and env["CAUSA_INV_FALHA"]
+    env = scan(PRG.CORE, {**env, "INV_FALHA": False, "PRESSAO_ALTA_17": True}, 0.1)   # causa 1 some, aparece causa 2
+    assert env["CAUSA_INV_FALHA"], "primeira causa preservada mesmo depois de normalizar"
+    assert not env.get("CAUSA_PRESSAO_ALTA_17"), "causa posterior nao sobrescreve a primeira (FALHA ja travada)"
+    env = scan(PRG.CORE, {**env, "PRESSAO_ALTA_17": False, "BT_RESET": True}, 0.1)
+    assert not env["FALHA_GERAL"] and not env["CAUSA_INV_FALHA"]
+
+
+def test_simultaneous_first_causes_are_all_recorded():
+    from codesys.generator import program as PRG
+    env = scan(PRG.CORE, {**SAFE, **TC_OK, "TC_Z2_OK": False, "INV_FALHA": True, "SEG_OK": False}, 0.1)
+    assert env["CAUSA_INV_FALHA"] and env["CAUSA_TC_FAULT"] and env["CAUSA_SEG_OK"]

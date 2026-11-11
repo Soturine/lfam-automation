@@ -36,7 +36,6 @@ class DemoEngine:
         self.robo_cmd = False
         self.lock = threading.RLock()
         self.log: list = []
-        self.latched: list = []       # causas que travaram a falha (permanecem ate o reset)
 
     # ---------------------------------------------------------------- comandos (apenas SOLICITACOES)
     def request(self, name: str) -> tuple[bool, str]:
@@ -137,7 +136,6 @@ class DemoEngine:
                 return
             self.duty = [self.env.get(f"Y_Z{z}", 0.0) / 100.0 for z in range(1, 6)]
             self.duty_ir = self.env.get("Y_IR", 0.0) / 100.0
-            self._track_latched()
             for k in list(self.pulses):
                 self.pulses[k] -= dt
                 if self.pulses[k] <= 0:
@@ -152,14 +150,9 @@ class DemoEngine:
         e = self.env
         return [k for k in self.CAUSE_KEYS if (not e.get(k, True) if k in ("SEG_OK", "MOT_SOBRETEMP") else e.get(k))]
 
-    def _track_latched(self) -> None:
-        """Memoriza as causas que existiam enquanto FALHA_GERAL esta travada; limpa quando o programa destrava."""
-        if self.env.get("FALHA_GERAL"):
-            for c in self._active_causes():
-                if c not in self.latched:
-                    self.latched.append(c)
-        else:
-            self.latched = []
+    def latched_causes(self) -> list:
+        """Primeira(s) causa(s) que travaram a falha: latches CAUSA_* do PROPRIO programa (nao dependem do polling do backend)."""
+        return [k for k in self.CAUSE_KEYS if self.env.get("CAUSA_" + k)]
 
     def _plant_inputs(self) -> Inputs:
         e = self.env
@@ -192,7 +185,7 @@ class DemoEngine:
                     "RESF_ON", "VENT_MOTOR", "INV_RUN", "SSR_IR", "IR_HAB", "ALIM_FUNIL", "ALM_PRESSAO_16_5", "ALM_ZSR_BAIXA",
                     "TC_FAULT", "LUZ_VERDE", "LUZ_AMARELA", "LUZ_VERM_SIRENE", "ROBO_EXT_PRONTA")},
                 "causes": self._active_causes(),
-                "latched_causes": list(self.latched),
+                "latched_causes": self.latched_causes(),
                 "log": self.log[-20:],
             }
 

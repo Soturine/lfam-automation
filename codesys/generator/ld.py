@@ -9,6 +9,8 @@ O mesmo objeto alimenta (1) o XML e (2) evaluate()/scan(), para provar equivalen
 """
 from __future__ import annotations
 
+import ast
+import operator
 import re
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -88,18 +90,49 @@ _IDENT = re.compile(r"^[A-Za-z_][A-Za-z_0-9]*$")
 
 
 @lru_cache(maxsize=None)
-def _compiled(expr: str):
+def _parsed(expr: str):
     py = expr
     for rx, rep in _IEC2PY:
         py = rx.sub(rep, py)
-    return compile(py, "<ld-expr>", "eval")
+    return ast.parse(py, mode="eval").body
+
+
+_BIN = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv, ast.Mod: operator.mod}
+_CMP = {ast.Lt: operator.lt, ast.LtE: operator.le, ast.Gt: operator.gt, ast.GtE: operator.ge, ast.Eq: operator.eq, ast.NotEq: operator.ne}
+
+
+def _walk(n, ns):
+    """Interpretador de AST com LISTA BRANCA (sem eval): constantes, nomes, + - * / %, comparacoes, not/and/or e funcoes de _FUNCS."""
+    if isinstance(n, ast.Constant) and isinstance(n.value, (int, float, bool)):
+        return n.value
+    if isinstance(n, ast.Name):
+        return ns[n.id]
+    if isinstance(n, ast.BinOp) and type(n.op) in _BIN:
+        return _BIN[type(n.op)](_walk(n.left, ns), _walk(n.right, ns))
+    if isinstance(n, ast.UnaryOp) and isinstance(n.op, (ast.Not, ast.USub)):
+        v = _walk(n.operand, ns)
+        return (not v) if isinstance(n.op, ast.Not) else -v
+    if isinstance(n, ast.BoolOp):
+        vals = [_walk(v, ns) for v in n.values]
+        return all(vals) if isinstance(n.op, ast.And) else any(vals)
+    if isinstance(n, ast.Compare) and all(type(o) in _CMP for o in n.ops):
+        left = _walk(n.left, ns)
+        for op, comp in zip(n.ops, n.comparators):
+            right = _walk(comp, ns)
+            if not _CMP[type(op)](left, right):
+                return False
+            left = right
+        return True
+    if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in _FUNCS and not n.keywords:
+        return _FUNCS[n.func.id](*[_walk(a, ns) for a in n.args])
+    raise ValueError("expressao nao permitida: " + ast.dump(n)[:80])
 
 
 def _ev(expr: str, env: dict):
-    """Avalia expressao de AUTORIA PROPRIA do projeto (nunca entrada externa) sem builtins; nomes desconhecidos valem 0."""
+    """Avalia expressao IEC-ish do projeto SEM eval: so a lista branca acima; nomes nao inicializados valem 0."""
     ns = _Zero(_FUNCS)
     ns.update({k: v for k, v in env.items() if not k.startswith("__")})
-    return eval(_compiled(expr), {"__builtins__": {}}, ns)  # noqa: S307 - expressoes fixas do gerador
+    return _walk(_parsed(expr), ns)
 
 
 def _sel(g, a, b):
