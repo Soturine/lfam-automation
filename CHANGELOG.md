@@ -25,6 +25,7 @@ Primeira versão completa: o Ladder real executa no CODESYS Control Win e a tela
 - **Modelo de PID:** anti-windup por retrocálculo, medido no bloco real.
 - **Planta simulada em modo PLC** passa a seguir o relógio real (os TON do CLP também).
 - Leituras OPC UA em lotes (o servidor recusa pedidos grandes) e timeout configurável.
+- Cliente OPC UA e sua thread agora são liberados na hora quando o enlace cai (antes só na reconexão; o `pytest` não encerrava ao rodar pelo PowerShell). Há guarda de teste contra threads vazadas.
 
 ### Removido
 - Prompt e notas de andamento superadas da raiz e de `docs/` (cópias locais em `references/`, fora do Git).
