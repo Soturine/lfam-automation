@@ -172,8 +172,8 @@ class OpcUaTransport:
             for i in range(0, len(names), READ_BATCH):  # o servidor limita operacoes por pedido (BadTooManyOperations)
                 values += self._client.read_values([self._nodes[n] for n in names[i:i + READ_BATCH]])
         except Exception as e:  # noqa: BLE001
-            self.connected = False
             self.last_error = f"{type(e).__name__}: {e}"
+            self.close()     # libera ja o cliente e a thread do asyncua (nao espera a proxima reconexao)
             raise PlcLinkError(self.last_error) from e
         env = dict(zip(names, values))
         hb = env.get(HEARTBEAT)

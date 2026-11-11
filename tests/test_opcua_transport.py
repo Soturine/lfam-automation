@@ -37,6 +37,21 @@ def start_server():
     return srv, nodes
 
 
+@pytest.fixture(autouse=True)
+def no_leaked_asyncua_threads():
+    """Cada cliente/servidor sincrono do asyncua cria uma thread NAO-daemon: se ficar para tras, o processo do pytest nao encerra
+    (travou o run-tests.ps1 numa pasta limpa). Todo teste tem de liberar o que abriu."""
+    yield
+    import threading
+    deadline = time.time() + 2.0
+    while time.time() < deadline:
+        live = [th for th in threading.enumerate() if type(th).__name__ == "ThreadLoop" and th.is_alive()]
+        if not live:
+            return
+        time.sleep(0.05)
+    pytest.fail(f"thread(s) do asyncua vazadas apos o teste: {len(live)}")
+
+
 @pytest.fixture()
 def server():
     srv, nodes = start_server()
@@ -110,6 +125,8 @@ def test_connection_loss_raises_and_engine_drops_pulses_and_refuses_commands():
     time.sleep(0.3)
     eng.step(0.1)
     assert eng.link_error and not eng.pulses, "pulso pendente deve ser descartado, nunca reenviado"
+    assert t._client is None and not t.connected, "na queda o cliente e liberado na hora (sem thread vazada)"
+    t.close()
     assert eng.snapshot()["plc_connected"] is False
     ok, msg = eng.request("BT_LIGA")
     assert not ok and "sem comunicacao" in msg
