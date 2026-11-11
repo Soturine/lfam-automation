@@ -43,6 +43,37 @@ class Rung:
     outs: list     # lista de Out
 
 
+@dataclass
+class CmpRung:
+    """Comparador alimentando uma bobina: out := (a <op> b). a e b sao variaveis ou literais REAL."""
+    title: str
+    op: str   # GT GE LT LE EQ NE
+    a: str
+    b: str
+    out: str
+
+
+@dataclass
+class TonRung:
+    """TON alimentado pela potencia 'power'; Q -> bobina out. pt em segundos (T#...s no XML)."""
+    title: str
+    power: object
+    inst: str
+    pt_s: float
+    out: str
+
+
+_OPS = {"GT": lambda x, y: x > y, "GE": lambda x, y: x >= y, "LT": lambda x, y: x < y,
+        "LE": lambda x, y: x <= y, "EQ": lambda x, y: x == y, "NE": lambda x, y: x != y}
+
+
+def _num(env, tok):
+    try:
+        return float(tok)
+    except ValueError:
+        return float(env.get(tok, 0.0))
+
+
 def Coil(v): return Out(v, "coil")
 def Set(v): return Out(v, "set")
 def Reset(v): return Out(v, "reset")
@@ -59,10 +90,22 @@ def evaluate(expr, env: dict) -> bool:
     raise TypeError(expr)
 
 
-def scan(rungs, env: dict) -> dict:
-    """Um ciclo de varredura (rede por rede, de cima para baixo), como o CLP executa."""
+def scan(rungs, env: dict, dt: float = 0.0) -> dict:
+    """Um ciclo de varredura (rede por rede, de cima para baixo), como o CLP executa.
+    dt (s) avanca os temporizadores TON; estado do TON fica em env['__ton_<inst>']."""
     env = dict(env)
     for r in rungs:
+        if isinstance(r, CmpRung):
+            env[r.out] = _OPS[r.op](_num(env, r.a), _num(env, r.b))
+            continue
+        if isinstance(r, TonRung):
+            key = "__ton_" + r.inst
+            if evaluate(r.power, env):
+                env[key] = env.get(key, 0.0) + dt
+            else:
+                env[key] = 0.0
+            env[r.out] = env[key] >= r.pt_s
+            continue
         p = evaluate(r.power, env)
         for o in r.outs:
             if o.kind == "coil":
@@ -75,19 +118,32 @@ def scan(rungs, env: dict) -> dict:
 
 
 def variables_of(rungs) -> dict:
+    """{nome: tipo}. Tipos: BOOL, REAL (operandos nao literais de comparadores) ou TON (instancias)."""
     names: dict = {}
 
     def walk(e):
         if isinstance(e, C):
-            names[e.var] = "BOOL"
+            names.setdefault(e.var, "BOOL")
         else:
             for i in e.items:
                 walk(i)
 
     for r in rungs:
-        walk(r.power)
-        for o in r.outs:
-            names[o.var] = "BOOL"
+        if isinstance(r, CmpRung):
+            for t in (r.a, r.b):
+                try:
+                    float(t)
+                except ValueError:
+                    names.setdefault(t, "REAL")
+            names[r.out] = "BOOL"
+        elif isinstance(r, TonRung):
+            walk(r.power)
+            names[r.inst] = "TON"
+            names[r.out] = "BOOL"
+        else:
+            walk(r.power)
+            for o in r.outs:
+                names[o.var] = "BOOL"
     return names
 
 
@@ -136,6 +192,47 @@ def rung_xml(rung: Rung, ids, left_rail: int) -> str:
     return "\n".join(parts)
 
 
+def _lit(tok: str) -> str:
+    return escape(tok)
+
+
+_SYM = {"GT": ">", "GE": ">=", "LT": "<", "LE": "<=", "EQ": "=", "NE": "<>"}
+
+
+def cmp_xml(r: CmpRung, ids, left_rail: int) -> str:
+    """Comparacao como CONTATO com expressao booleana (ex.: TT_Z1 > 390.0) -> bobina.
+    (As caixas GT/GE/LT do CODESYS exigem nomes de pino que o PLCopen XML nao documenta; ver docs/evidence.)"""
+    c = next(ids)
+    o = next(ids)
+    expr = "%s %s %s" % (r.a, _SYM[r.op], r.b)
+    return (
+        '<contact localId="%d" negated="false" storage="none">%s<connectionPointIn><connection refLocalId="%d" /></connectionPointIn>'
+        "<connectionPointOut /><variable>%s</variable></contact>"
+        '<coil localId="%d" negated="false" storage="none">%s<connectionPointIn><connection refLocalId="%d" /></connectionPointIn>'
+        "<connectionPointOut /><variable>%s</variable></coil>" % (c, _pos(), left_rail, escape(expr), o, _pos(), c, escape(r.out))
+    )
+
+
+def ton_xml(r: TonRung, ids, left_rail: int) -> str:
+    parts: list = []
+    ends = _emit_expr(r.power, [left_rail], ids, parts)
+    b = next(ids)
+    o = next(ids)
+    conns = "".join('<connection refLocalId="%d" />' % s for s in ends)
+    parts.append(
+        '<block localId="%d" typeName="TON" instanceName="%s">%s<inputVariables>'
+        '<variable formalParameter="IN"><connectionPointIn>%s</connectionPointIn></variable>'
+        '<variable formalParameter="PT"><connectionPointIn><expression>T#%dms</expression></connectionPointIn></variable>'
+        '</inputVariables><inOutVariables /><outputVariables><variable formalParameter="Q"><connectionPointOut /></variable></outputVariables></block>'
+        % (b, escape(r.inst), _pos(), conns, int(round(r.pt_s * 1000)))
+    )
+    parts.append(
+        '<coil localId="%d" negated="false" storage="none">%s<connectionPointIn><connection refLocalId="%d" formalParameter="Q" />'
+        "</connectionPointIn><connectionPointOut /><variable>%s</variable></coil>" % (o, _pos(), b, escape(r.out))
+    )
+    return "\n".join(parts)
+
+
 def pou_xml(name: str, variables: dict, rungs: list) -> str:
     """Programa PLCopen com uma barra de potencia esquerda por rede."""
     ids = count(1)
@@ -147,8 +244,17 @@ def pou_xml(name: str, variables: dict, rungs: list) -> str:
             % (next(ids), _pos(), escape(r.title))
         )
         body.append('<leftPowerRail localId="%d">%s<connectionPointOut formalParameter="none" /></leftPowerRail>' % (left, _pos()))
-        body.append(rung_xml(r, ids, left))
-    decl = "".join('<variable name="%s"><type><%s /></type></variable>' % (n, t) for n, t in variables.items())
+        if isinstance(r, CmpRung):
+            body.append(cmp_xml(r, ids, left))
+        elif isinstance(r, TonRung):
+            body.append(ton_xml(r, ids, left))
+        else:
+            body.append(rung_xml(r, ids, left))
+    decl = "".join(
+        '<variable name="%s"><type>%s</type></variable>'
+        % (n, '<derived name="TON" />' if t == "TON" else "<%s />" % t)
+        for n, t in variables.items()
+    )
     return (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<project xmlns="http://www.plcopen.org/xml/tc6_0200">'
