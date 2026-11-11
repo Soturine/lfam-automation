@@ -12,6 +12,10 @@ Write-Host "==> pytest" -ForegroundColor Cyan
 & .\.venv\Scripts\python.exe -m pytest -q tests
 if ($LASTEXITCODE -ne 0) { $fail++ }
 
+Write-Host "`n==> links dos documentos" -ForegroundColor Cyan
+& .\.venv\Scripts\python.exe tools\check_links.py
+if ($LASTEXITCODE -ne 0) { $fail++ }
+
 Write-Host "`n==> build do SCADA (tsc + vite)" -ForegroundColor Cyan
 Push-Location scada\web
 npm run build

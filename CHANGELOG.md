@@ -15,6 +15,8 @@ Primeira versão completa: o Ladder real executa no CODESYS Control Win e a tela
 - **Documentação em subpastas** (`entender`, `guias`, `academico`, `projeto`) com índice, perguntas e respostas da arguição, roteiro de 2 minutos, Ladder explicado etapa por etapa e a ligação backend↔CODESYS.
 - Catálogo do Ladder em imagens (`tools/render_ladder.py`), galeria do SCADA e três GIFs (fluxo completo, tour das telas, celular).
 - Acabamento visual do SCADA: profundidade, entrada escalonada, números animados, estados de comando, skeleton de carregamento, tendência na visão geral.
+- **Licença MIT**, guia de contribuição, código de conduta, política de segurança, modelos de issue (erro, melhoria, documentação, pergunta) e de Pull Request, e `AGENTS.md` para agentes de IA.
+- `tools/check_links.py`: verificação dos links dos documentos (incluída em `run-tests.ps1`).
 - Trace por ciclo e falhas de ensaio no backend (`/api/trace`, disjuntor aberto, aviso e bloqueio de pressão).
 
 ### Corrigido

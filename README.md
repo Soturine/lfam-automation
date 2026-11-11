@@ -3,6 +3,8 @@
 **Supervisão e controle de uma extrusora de impressão 3D de grande formato (LFAM)**: programa **Ladder real** executado num CLP virtual (CODESYS Control Win), tela de operação web (SCADA) e uma planta simulada para testar tudo sem máquina física.
 Projeto acadêmico de Automação Industrial — **não é segurança certificada nem controla máquina real**.
 
+[![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green.svg)](LICENSE) ![CODESYS](https://img.shields.io/badge/CODESYS-3.5.22-blue) ![Python](https://img.shields.io/badge/Python-3.10%2B-blue) ![React](https://img.shields.io/badge/React-18-61dafb) ![Estado](https://img.shields.io/badge/estado-educacional%20%2F%20simulado-orange)
+
 <p align="center">
   <img src="docs/media/scada-fluxo-completo.gif" alt="SCADA em modo DEMO: aquecer, encharque, extrusão, falha de pressão e reset" width="760"><br>
   <sub>SCADA em modo <b>DEMO / SIMULADO</b>: aquecer → encharque → pronto → extrusão → falha de pressão travada → reset (relógio acelerado).</sub>
@@ -83,6 +85,12 @@ powershell -ExecutionPolicy Bypass -File .\tools\start-demo.ps1     # sobe backe
 
 Testes: `pytest -q tests` (90) e, em `scada/web`, `npx playwright test` (exige o backend DEMO).
 Diagnóstico do ambiente Windows: `.\tools\diagnose-windows.ps1`.
+
+## Contribuir
+Issues e Pull Requests são bem-vindos (inclusive do grupo): veja o [guia de contribuição](CONTRIBUTING.md), o [código de conduta](CODE_OF_CONDUCT.md) e, para agentes de IA, o [AGENTS.md](AGENTS.md). Falhas de segurança: [SECURITY.md](SECURITY.md).
+
+## Licença
+Código e documentos sob [licença MIT](LICENSE). O CODESYS e suas bibliotecas seguem as licenças próprias; os materiais do grupo (`references/`) não são distribuídos aqui.
 
 ## Segurança e escopo
 Projeto **educacional / simulador**. HMI e software de controle comum **não substituem** parada de emergência (circuito de hardware independente), dispositivos de segurança certificados, análise de riscos nem comissionamento. Nunca escrever comandos em máquina física sem avaliação e autorização. Credenciais ficam **somente** em variáveis de ambiente da sessão; nada de segredos, licenças ou tickets no repositório.
