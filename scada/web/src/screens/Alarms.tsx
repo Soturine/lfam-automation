@@ -20,7 +20,7 @@ export function Alarms({ live, phase, msg, send }: Props) {
   const rows = events.filter((e) => filter === "TODOS" || e.kind === filter).slice().reverse();
   const warnings = [snap.flags.ALM_PRESSAO_16_5 && "Pré-alarme de pressão (≥ 16,5 MPa) — referência reduzida em 10%", snap.flags.ALM_ZSR_BAIXA && "Trecho sem resistência abaixo de 220 °C"].filter(Boolean) as string[];
   const down = status === "SEM COMUNICAÇÃO";
-  const demo = snap.mode === "DEMO" && !down;
+  const demo = !down; // injeção afeta só a PLANTA simulada (também no modo PLC)
   return (
     <div className="grid two">
       <Panel title="Alarmes ativos" right={snap.state === "FALHA_TRAVADA" ? <span className="tag bad">FALHA TRAVADA</span> : <span className="tag ok">SEM FALHA TRAVADA</span>}>
@@ -46,7 +46,7 @@ export function Alarms({ live, phase, msg, send }: Props) {
         )}
       </Panel>
       {demo && (
-        <Panel title="Injeção de falhas na planta" right={<span className="badge-demo">DEMO / SIMULADO</span>}>
+        <Panel title="Injeção de falhas na planta" right={<span className="badge-demo">{snap.mode === "DEMO" ? "DEMO / SIMULADO" : "PLANTA SIMULADA"}</span>}>
           <p className="hint">Afeta apenas a planta simulada (sensores/atuadores). O programa decide a reação.</p>
           <div className="faults">
             {FAULTS.map(([id, label]) => (

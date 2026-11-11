@@ -9,8 +9,7 @@ from __future__ import annotations
 import threading
 import time
 
-from codesys.generator import program as PRG
-from codesys.generator.ld import scan
+from .transport import DemoTransport, PlcLinkError
 from simulator.lfam_sim import Plant, Inputs, ZONES
 
 SP_LIMITS = {"Z1": (330, 375), "Z2": (330, 375), "Z3": (330, 375), "Z4": (330, 375), "Z5": (345, 375)}
@@ -19,7 +18,9 @@ BUTTONS = {"BT_AQUEC", "BT_LIGA", "BT_RESET"}  # pulsos; BT_DESLIGA e tratado co
 
 
 class DemoEngine:
-    def __init__(self, seed: int = 1):
+    def __init__(self, seed: int = 1, transport=None):
+        self.transport = transport or DemoTransport()
+        self.link_error = ""
         self.plant = Plant(seed=seed)
         self.env: dict = {}
         self.t = 0.0
@@ -29,7 +30,6 @@ class DemoEngine:
         self.duty = [0.0] * ZONES
         self.duty_ir = 0.0
         self.pulses: dict = {}
-        self.stop_pressed = False
         self.estop_test = False       # emergencia LOGICA de teste (nao substitui a fisica)
         self.robo_mov = False
         self.sel_auto = False
@@ -41,17 +41,16 @@ class DemoEngine:
     # ---------------------------------------------------------------- comandos (apenas SOLICITACOES)
     def request(self, name: str) -> tuple[bool, str]:
         with self.lock:
+            if self.transport.mode == "PLC" and not self.transport.healthy:
+                return False, "sem comunicacao com o controlador: comando recusado"
             if name in BUTTONS:
                 self.pulses[name] = 0.5
                 self._log(f"solicitado {name}")
                 return True, "solicitacao enviada; aguarde confirmacao do estado"
             if name == "STOP":
-                self.stop_pressed = True
+                self.pulses["STOP"] = 1.0      # BT_DESLIGA e NF: pulso de 1 s com contato aberto (nao fica preso)
                 self._log("solicitado STOP")
                 return True, "parada solicitada"
-            if name == "STOP_RELEASE":
-                self.stop_pressed = False
-                return True, "parada liberada"
         return False, f"comando desconhecido: {name}"
 
     def set_setpoint(self, key: str, value: float) -> tuple[bool, str]:
@@ -118,7 +117,7 @@ class DemoEngine:
                 "TT_SUBSTRATO_RAW": int(max(0.0, min(500.0, s["TT_SUBSTRATO_C"])) / 500.0 * 27648),
                 "TT_ZSR": s["TT_ZSR"], "TT_RESF": s["TT_RESF"],
                 "SEG_OK": not self.estop_test, "MOT_SOBRETEMP": True, "DISJ_AQUEC": True,
-                "BT_DESLIGA": not self.stop_pressed, "SEL_AUTO": self.sel_auto, "ROBO_CMD_EXTR": self.robo_cmd,
+                "BT_DESLIGA": "STOP" not in self.pulses, "SEL_AUTO": self.sel_auto, "ROBO_CMD_EXTR": self.robo_cmd,
                 "ROBO_EM_MOV": self.robo_mov, "SECADOR_OK": True,
                 "INV_PRONTO": s["INV_PRONTO"], "INV_FALHA": s["INV_FALHA"], "FUNIL_BAIXO": s["FUNIL_BAIXO"],
                 "VENT_OK": s["VENT_OK"], "K1_CONF": s["K1_CONF"], "SP_RPM_OPERADOR": self.sp_rpm,
@@ -129,7 +128,13 @@ class DemoEngine:
                 env_in[f"SP_Z{i + 1}"] = self.sp_z[i]
             env_in["SP_IR_C"] = self.sp_ir
 
-            self.env = scan(PRG.RUNGS, env_in, dt)
+            try:
+                self.env = self.transport.cycle(env_in, dt)
+                self.link_error = ""
+            except PlcLinkError as e:
+                self.link_error = str(e)
+                self.pulses.clear()            # nunca reenviar comandos pendentes apos perda de enlace
+                return
             self.duty = [self.env.get(f"Y_Z{z}", 0.0) / 100.0 for z in range(1, 6)]
             self.duty_ir = self.env.get("Y_IR", 0.0) / 100.0
             self._track_latched()
@@ -172,8 +177,10 @@ class DemoEngine:
                      else "PRONTO" if e.get("EST_PRONTO") else "ENCHARQUE" if e.get("EST_ENCHARQUE")
                      else "AQUECIMENTO" if e.get("EST_AQUEC") else "DESLIGADO")
             return {
-                "mode": "DEMO", "source": "simulacao (programa Ladder gerado em avaliador Python; NAO e o CLP)",
-                "plc_connected": False, "t_sim_s": round(self.t, 2), "timestamp": time.time(), "state": state,
+                "mode": self.transport.mode, "link_error": self.link_error,
+                "source": ("simulacao (programa Ladder gerado em avaliador Python; NAO e o CLP)" if self.transport.mode == "DEMO"
+                           else "valores lidos do CODESYS Control Win via OPC UA (ponte de desenvolvimento)"),
+                "plc_connected": self.transport.mode == "PLC" and self.transport.healthy, "t_sim_s": round(self.t, 2), "timestamp": time.time(), "state": state,
                 "temps": {f"Z{z}": round(e.get(f"TT_Z{z}", 0.0), 1) for z in range(1, 6)},
                 "setpoints": {f"Z{z}": self.sp_z[z - 1] for z in range(1, 6)} | {"RPM": self.sp_rpm, "IR": self.sp_ir},
                 "ssr_duty": {f"Z{z}": round(self.duty[z - 1], 3) for z in range(1, 6)} | {"IR": round(self.duty_ir, 3)},

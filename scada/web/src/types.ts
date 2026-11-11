@@ -4,6 +4,7 @@ export interface Snapshot {
   mode: "DEMO" | "PLC";
   source: string;
   plc_connected: boolean;
+  link_error?: string;
   t_sim_s: number;
   timestamp: number;
   state: ProcState;

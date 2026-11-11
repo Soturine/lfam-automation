@@ -1,6 +1,6 @@
 # CP3 - transporte HMI <-> Control Win: analise (2026-11-11)
 
-**Status: BLOQUEADO para OPC UA nesta instalacao. Nenhuma integracao real HMI->CLP foi feita. O SCADA esta em modo DEMO.**
+**Status: REVISADO - a conclusao original (OPC UA ausente) estava ERRADA: o servidor OPC UA e parte do Control Win SL; faltava criar Communication Manager + OPC UA Server no projeto. Ver `docs/CP3_PLC_MODE.md`.** Nenhuma integracao real foi comprovada ainda; o SCADA continua em DEMO ate a rodada manual.
 
 ## Observado (executado)
 - Pasta do runtime (`GatewayPLC`, servico "CODESYS Control Win V3 - x64"): sem DLL/componente de servidor OPC UA (`CmpOPCUA*` ausente);

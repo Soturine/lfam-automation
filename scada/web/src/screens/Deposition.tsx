@@ -8,7 +8,7 @@ export function Deposition({ live }: { live: Live }) {
   const { snap, history, status } = live;
   if (!snap) return <div className="empty" role="status">Aguardando dados…</div>;
   const f = snap.flags;
-  const demo = snap.mode === "DEMO" && status !== "SEM COMUNICAÇÃO";
+  const demo = status !== "SEM COMUNICAÇÃO"; // robô simulado (nos dois modos)
   return (
     <div className="grid two">
       <div className="kpis">

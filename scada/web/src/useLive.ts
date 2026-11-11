@@ -83,7 +83,8 @@ export function useLive(): Live {
   let status: LinkStatus = "CONECTANDO";
   if (snap) {
     if (!connected || ageMs > STALE_MS) status = "SEM COMUNICAÇÃO";
-    else status = snap.mode === "DEMO" ? "DEMO" : "CLP CONECTADO";
+    else if (snap.mode === "PLC") status = snap.plc_connected ? "CLP CONECTADO" : "SEM COMUNICAÇÃO"; // heartbeat do CLP parado => obsoleto
+    else status = "DEMO";
   } else if (!connected && lastRx.current) {
     status = "SEM COMUNICAÇÃO";
   }

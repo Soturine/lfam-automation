@@ -130,3 +130,15 @@ def test_latched_cause_is_remembered_after_it_clears_until_reset():
     eng.request("BT_RESET"); run(eng, 3, dt=0.5)
     s = eng.snapshot()
     assert s["state"] != "FALHA_TRAVADA" and s["latched_causes"] == []
+
+
+def test_stop_is_a_one_second_pulse_and_does_not_latch_the_stop_button():
+    eng = DemoEngine()
+    start_heating(eng)
+    run(eng, 1400, dt=0.5)
+    eng.request("BT_LIGA"); run(eng, 5, dt=0.5)
+    assert eng.snapshot()["state"] == "EXTRUSAO"
+    eng.request("STOP"); run(eng, 3, dt=0.5)
+    assert eng.snapshot()["state"] == "PRONTO", "parou"
+    eng.request("BT_LIGA"); run(eng, 3, dt=0.5)
+    assert eng.snapshot()["state"] == "EXTRUSAO", "STOP nao pode ficar preso e bloquear nova partida"

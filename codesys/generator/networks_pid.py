@@ -53,4 +53,7 @@ NET14_COUNT = [
            declare={"HMI_RESET_LOTES": "BOOL"}),
 ]
 
-CONTROL = SAW + PID_ZONES + PWM_ZONES + PID_IR
+HEARTBEAT = [AssignRung("NETWORK 00 - PLC_HEARTBEAT: contador de vida do programa (INT, 0..32767)", "PLC_HEARTBEAT",
+                       "(PLC_HEARTBEAT + 1) MOD 32767", {"PLC_HEARTBEAT": "INT"})]
+
+CONTROL = HEARTBEAT + SAW + PID_ZONES + PWM_ZONES + PID_IR

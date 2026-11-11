@@ -46,10 +46,11 @@ export default function App() {
           <span className={`link ${tone}`}>{status}</span>
           {snap && <span className="meta">último dado há {age}{stale ? "" : ` · t sim. ${snap.t_sim_s.toFixed(0)} s`}</span>}
           {snap?.mode === "DEMO" && <span className="badge-demo">DEMO / SIMULADO</span>}
+          {snap?.mode === "PLC" && <span className="badge-demo">LÓGICA NO CLP · PLANTA SIMULADA</span>}
           {snap && <span className={`state ${snap.state === "FALHA_TRAVADA" ? "bad" : ""}`}>{stale ? "estado desatualizado" : STATE_LABEL[snap.state]}</span>}
         </div>
       </header>
-      {stale && <div className="banner bad" role="alert">Sem comunicação com a API/controlador. Comandos desabilitados; valores abaixo estão desatualizados e podem não refletir a máquina.</div>}
+      {stale && <div className="banner bad" role="alert">Sem comunicação com a API ou com o controlador (heartbeat parado). Comandos desabilitados; valores abaixo estão desatualizados e podem não refletir a máquina.</div>}
       <nav className="tabs" role="tablist" aria-label="Telas" onKeyDown={onKey}>
         {TABS.map((t, i) => (
           <button key={t.id} role="tab" aria-selected={tab === t.id} tabIndex={tab === t.id ? 0 : -1} className={tab === t.id ? "active" : ""} onClick={() => setTab(t.id)}>
