@@ -74,7 +74,7 @@ Passo a passo da demonstração: *Ligar aquecimento* → aguarde *PRONTO* → *I
 
 **B. Ver o Ladder rodando de verdade (CLP virtual):** siga [INSTALLATION_COMPLETE.md](../guias/INSTALLATION_COMPLETE.md) (instalar CODESYS) e depois [MODO_PLC.md](../guias/MODO_PLC.md) (certificados, símbolos, backend em modo PLC). O script `tools/cp3_roundtrip.py` prova a ida e volta; `tools/cp4_scenarios.py` roda os cenários completos.
 
-**C. Abrir o projeto CODESYS:** `codesys/LFAM_Automacao_Ladder.project` (Ladder completo + objetos OPC UA). O `LFAM_Automacao.project` da raiz é o projeto original do grupo e **não é alterado**. Para ver as 15 redes sem abrir o CODESYS: [LADDER.md](LADDER.md).
+**C. Abrir o projeto CODESYS:** `codesys/LFAM_Automacao_Ladder.project` (Ladder completo + objetos OPC UA). (O projeto original do grupo era um `PLC_PRG` vazio; o histórico dele continua no Git.) Para ver as 15 redes sem abrir o CODESYS: [LADDER.md](LADDER.md).
 
 ## 8. Mapa do repositório
 ```

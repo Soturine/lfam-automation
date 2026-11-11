@@ -53,7 +53,7 @@ if (Get-Command claude -ErrorAction SilentlyContinue) { Info ("claude --version:
 # --- Repositorio -------------------------------------------------------------
 Write-Host "`n-- Repositorio" -ForegroundColor Cyan
 Info "Raiz: $root"
-if (Test-Path -LiteralPath (Join-Path $root 'LFAM_Automacao.project')) { Ok 'LFAM_Automacao.project presente na raiz' } else { Bad 'LFAM_Automacao.project ausente' }
+if (Test-Path -LiteralPath (Join-Path $root 'codesys\LFAM_Automacao_Ladder.project')) { Ok 'codesys\LFAM_Automacao_Ladder.project presente' } else { Bad 'codesys\LFAM_Automacao_Ladder.project ausente' }
 if (Get-Command git -ErrorAction SilentlyContinue) {
     Info ("Branch: {0}" -f (git -C $root branch --show-current))
     $n = @(git -C $root status --short).Count

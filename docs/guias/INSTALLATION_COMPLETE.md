@@ -214,7 +214,7 @@ Também não confunda **gerenciamento de usuários do dispositivo** (esta etapa)
 
 Fonte: <https://content.helpme-codesys.com/en/CODESYS%20Development%20System/_cds_configuring_connection_to_plc.html>
 
-1. Abra `LFAM_Automacao.project` no CODESYS (etapa F).
+1. Abra `codesys/LFAM_Automacao_Ladder.project` no CODESYS (etapa F).
 2. Na árvore, selecione o dispositivo **Device (CODESYS Control Win V3 x64)** → menu **Projeto → Editar objeto** (ou duplo clique).
 3. Aba **Communication Settings / Seleção de controladores**.
 4. Clique em **Scan Network / Escanear rede**.
@@ -245,7 +245,7 @@ cd lfam-automation
 ```
 
 3. **VS Code:** `code .`
-4. **CODESYS:** abra `LFAM_Automacao.project` (Arquivo → Abrir projeto). **Não crie outro projeto com este nome.**
+4. **CODESYS:** abra `codesys/LFAM_Automacao_Ladder.project` (Arquivo → Abrir projeto).
 5. **Confira a árvore:** `Device (CODESYS Control Win V3 x64)` → `Lógica CLP` → `Application` → `PLC_PRG` e `Configuração de tarefas → MainTask → PLC_PRG`.
 6. **Compilar:** Compilação → Compilar. Esperado: **0 erros**.
 7. **Login:** Online → Login (se for a primeira vez, siga a etapa E). Responda **Não** se o CODESYS perguntar se deseja **apagar aplicações de terceiros**.
@@ -253,7 +253,7 @@ cd lfam-automation
 9. **Iniciar:** Depuração → Iniciar (ou o botão ▶). A barra deve mostrar **RUN**.
 10. **Observar:** abra `PLC_PRG` e veja valores ao vivo (Online). Force `TRUE` em uma entrada e veja a bobina mudar.
 
-**Projeto original × POCs:** `LFAM_Automacao.project` (raiz) é o projeto do grupo e **não deve ser sobrescrito por scripts**. Os scripts em `tools/codesys_scripts/` trabalham em **cópias** dentro de `work/` (ignorada pelo Git).
+**Projeto e scripts:** o projeto versionado é `codesys/LFAM_Automacao_Ladder.project`. Os scripts em `tools/codesys_scripts/` trabalham em **cópias** dentro de `work/` (ignorada pelo Git) para não sobrescrever o projeto aberto no IDE.
 
 Arquivos `.opt`, `.~u` e caches são locais e ignorados pelo Git.
 
@@ -451,7 +451,7 @@ O script descobre sozinho o `CODESYS.exe`; use `-Exe` se houver várias instala�
 - [ ] CODESYS **3.5.22.40** abre (Ajuda → Sobre)
 - [ ] Serviço do Control Win em execução; ícone na bandeja
 - [ ] Administrador do dispositivo criado e login feito (etapa E)
-- [ ] Repositório clonado; `LFAM_Automacao.project` abre; árvore confere
+- [ ] Repositório clonado; `codesys/LFAM_Automacao_Ladder.project` abre; árvore confere
 - [ ] **Compila com 0 erros**
 - [ ] Aplicação **transferida e em RUN** no Control Win local
 - [ ] Valor de uma variável observado mudando online

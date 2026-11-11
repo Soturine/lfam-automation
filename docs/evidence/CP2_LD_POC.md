@@ -10,7 +10,7 @@ Caminho comprovado para criar LD: **PLCopen XML + Scripting API** (o MCP 1.1.0.0
 NÃO comprovado ainda: execução no Control Win. `login()` headless (--noUI) travou (provável diálogo de gateway/dispositivo).
 Passo manual: abrir `work/LFAM_POC.project` no IDE, ativar/selecionar o gateway local e rodar
 `tools/codesys_scripts/poc_online_in_ide.py` (Tools > Scripting > Execute Script File) ou logar (Alt+F8) e start.
-O projeto original `LFAM_Automacao.project` NÃO foi modificado (trabalho só em cópias em `work/`, ignorado pelo Git).
+O projeto original `LFAM_Automacao.project` (então na raiz, com `PLC_PRG` vazio; depois substituído por `codesys/LFAM_Automacao_Ladder.project`) NÃO foi modificado (trabalho só em cópias em `work/`, ignorado pelo Git).
 
 ## Atualização: causa raiz do bloqueio de login (observada)
 - Fix 1: o gateway/dispositivo ativo fica no `.opt` do usuário; a cópia `work/LFAM_POC` recebeu cópia local dele.

@@ -14,7 +14,7 @@ Esta lista mostra **o que existe no repositório**; a **monografia manuscrita** 
 | SCADA/HMI com seis telas, interação, histórico e alarmes | `scada/web`, `evidence/scada/*.png` | **Funciona** em DEMO e em modo CLP (Ladder no Control Win) |
 | Segurança, intertravamentos, análise de falhas | Arquitetura v2 (15 intertravamentos), redes 02/03/04 | Existe; tabela de falhas (efeito/detecção/resposta) é tarefa 12 do grupo |
 | Fluxograma, esquema elétrico | `references/visual/fluxograma_funcional.png`, `Esquema_Eletrico.docx` | Existem (grupo, preliminares). **Pendência:** tensão 220 V mono × trifásico |
-| **Ladder real diretamente ligado ao processo** | `codesys/exports/LFAM_PROGRAM.xml` importado em `LFAM_Automacao.project`-cópia; POC executada | **Atendido pela POC executada no Control Win** (`CP2`). Programa completo compilado **e executado** no Control Win (CP3, `evidence/CP3_ROUNDTRIP_OK.txt`) |
+| **Ladder real diretamente ligado ao processo** | `codesys/exports/LFAM_PROGRAM.xml` importado e compilado em `codesys/LFAM_Automacao_Ladder.project`; POC executada | **Atendido pela POC executada no Control Win** (`CP2`). Programa completo compilado **e executado** no Control Win (CP3, `evidence/CP3_ROUNDTRIP_OK.txt`) |
 | Monografia manuscrita; apresentação de 20 min; arguição | `docs/academico/ROTEIRO_APRESENTACAO.md` | **Só o roteiro e as perguntas** estão prontos; o texto manuscrito é do grupo |
 | Interação hardware × software × processo | `docs/entender/ARCHITECTURE.md`, `ROTEIRO_APRESENTACAO.md` | Explicado (sensor → CLP → Ladder → atuador → HMI) |
 | Grupo multidisciplinar, participação de todos | Arquitetura v2 (divisão) | Todos devem dominar o projeto inteiro |

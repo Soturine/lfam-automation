@@ -12,6 +12,6 @@ git pull --ff-only            # salve e feche o CODESYS antes; nunca use reset -
 .\tools\diagnose-windows.ps1 # descobre CODESYS, Control Win, bridge MCP e ferramentas automaticamente
 ~~~
 
-- O projeto é `LFAM_Automacao.project` **na raiz**. Não crie outro e não mova o arquivo com o CODESYS aberto.
+- O projeto é `codesys/LFAM_Automacao_Ladder.project`. Não mova o arquivo com o CODESYS aberto.
 - Scripts de automação trabalham em **cópias** em `work/` (ignorada pelo Git), nunca no projeto original.
 - Problemas de MCP: [MCP_TROUBLESHOOTING.md](MCP_TROUBLESHOOTING.md).
