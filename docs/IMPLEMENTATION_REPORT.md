@@ -30,7 +30,7 @@ Regra: compilar **não** é executar; DEMO **não** é CLP.
 As pranchas do grupo são desenhos **didáticos para S7-1200**; o projeto executável é CODESYS. Divergências documentadas em `SOURCE_RECONCILIATION.md` (inclui o erro de colocar contatos antes do PID_Compact).
 
 ## Reproduzir
-`docs/INSTALLATION_COMPLETE.md` (ambiente) · `docs/SCADA_RUN.md` (DEMO) · `docs/CP3_PLC_MODE.md` (modo PLC). Gate local: `pytest -q tests` + build headless (`tools/codesys_scripts/build_program.py`).
+`docs/INSTALLATION_COMPLETE.md` (ambiente) · `docs/SCADA_RUN.md` (DEMO) · `docs/MODO_PLC.md` (modo PLC). Gate local: `pytest -q tests` + build headless (`tools/codesys_scripts/build_program.py`).
 
 ## Limitações honestas
 Nenhum resultado aqui autoriza comandar máquina real. Emergência é hardware independente. Pressão/ganhos/escala do inversor/tensão do sistema (monofásico × trifásico) são **hipóteses** a validar.

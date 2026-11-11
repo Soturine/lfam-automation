@@ -72,7 +72,7 @@ cd scada\web ; npm install ; npm run dev          # abra http://localhost:5173
 ```
 Passo a passo da demonstração: *Ligar aquecimento* → aguarde *PRONTO* → *Iniciar extrusão* → aba *Alarmes* para injetar uma falha de pressão → *Reset*.
 
-**B. Ver o Ladder rodando de verdade (CLP virtual):** siga [INSTALLATION_COMPLETE.md](INSTALLATION_COMPLETE.md) (instalar CODESYS) e depois [CP3_PLC_MODE.md](CP3_PLC_MODE.md) (certificados, símbolos, backend em modo PLC). O script `tools/cp3_roundtrip.py` prova a ida e volta; `tools/cp4_scenarios.py` roda os cenários completos.
+**B. Ver o Ladder rodando de verdade (CLP virtual):** siga [INSTALLATION_COMPLETE.md](INSTALLATION_COMPLETE.md) (instalar CODESYS) e depois [MODO_PLC.md](MODO_PLC.md) (certificados, símbolos, backend em modo PLC). O script `tools/cp3_roundtrip.py` prova a ida e volta; `tools/cp4_scenarios.py` roda os cenários completos.
 
 **C. Abrir o projeto CODESYS:** `codesys/LFAM_Automacao_Ladder.project` (Ladder completo + objetos OPC UA). O `LFAM_Automacao.project` da raiz é o projeto original do grupo e **não é alterado**. Para ver as 15 redes sem abrir o CODESYS: [LADDER.md](LADDER.md).
 

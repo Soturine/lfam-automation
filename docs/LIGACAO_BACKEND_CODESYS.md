@@ -1,7 +1,7 @@
 # Como o backend se liga ao CODESYS
 
 Este documento explica **a ponte** entre o backend (Python/FastAPI) e o Ladder que roda no CODESYS Control Win: o que existe de cada lado, como as variáveis viajam, como a segurança funciona e **o que fazer quando dá erro** (todos os erros abaixo aconteceram de verdade durante o desenvolvimento).
-Passo a passo de configuração no IDE: [CP3_PLC_MODE.md](CP3_PLC_MODE.md). Visão geral: [COMO_FUNCIONA.md](COMO_FUNCIONA.md).
+Passo a passo de configuração no IDE: [MODO_PLC.md](MODO_PLC.md). Visão geral: [COMO_FUNCIONA.md](COMO_FUNCIONA.md).
 
 ## 1. A ideia
 O CLP virtual **expõe** as variáveis do programa por um **servidor OPC UA** (padrão industrial). O backend é um **cliente OPC UA**: a cada ciclo escreve as entradas permitidas e lê o estado de volta. Nenhum outro canal liga os dois.

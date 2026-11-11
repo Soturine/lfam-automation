@@ -48,7 +48,7 @@ Esperado: *“Todos os testes passaram.”* O pytest cobre Ladder (por rede), si
 ## Nível 3 — o Ladder de verdade no CODESYS
 Isto liga o **CLP virtual**. Você precisa do **CODESYS V3.5 SP22 (Patch 4)** com o **Control Win** — guia completo e conferido nas fontes oficiais em [INSTALLATION_COMPLETE.md](INSTALLATION_COMPLETE.md). Depois:
 
-1. Abra `codesys/LFAM_Automacao_Ladder.project`, compile, faça **Logon → Download → Iniciar** (Control Win iniciado). Detalhes: [CP3_PLC_MODE.md](CP3_PLC_MODE.md) (certificados do OPC UA, símbolos).
+1. Abra `codesys/LFAM_Automacao_Ladder.project`, compile, faça **Logon → Download → Iniciar** (Control Win iniciado). Detalhes: [MODO_PLC.md](MODO_PLC.md) (certificados do OPC UA, símbolos).
 2. Suba o backend em modo PLC — o script pede a senha de forma **oculta**:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\start-plc.ps1 -User SEU_USUARIO_DO_DISPOSITIVO -Web

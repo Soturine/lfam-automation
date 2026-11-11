@@ -36,7 +36,40 @@ async function flow(name, size, tabs) {
   await ctx.close();
 }
 
-await flow("desktop", { width: 1280, height: 720 }, true);
-await flow("mobile", { width: 390, height: 844 }, false);
+if (!process.env.TOUR) await flow("desktop", { width: 1280, height: 720 }, true);
+if (!process.env.TOUR) await flow("mobile", { width: 390, height: 844 }, false);
 await browser.close();
 console.log("videos em", OUT);
+
+// ---- tour das 6 telas (gravado a parte; marca os instantes de espera para acelerar so esse trecho)
+if (process.env.TOUR) {
+  const b2 = await chromium.launch();
+  const size = { width: 1280, height: 720 };
+  const ctx = await b2.newContext({ viewport: size, recordVideo: { dir: path.join(OUT, "tour"), size } });
+  const t0 = Date.now(); const marks = {};
+  const page = await ctx.newPage();
+  await page.goto(BASE); await page.waitForSelector(".link"); await sleep(1500);
+  await page.getByRole("button", { name: "Ligar aquecimento" }).click(); await sleep(1800);
+  marks.waitStart = (Date.now() - t0) / 1000;
+  await until(page, "Pronto");
+  marks.waitEnd = (Date.now() - t0) / 1000;
+  await sleep(800);
+  // Temperaturas / PID: edita um setpoint (permitido fora da extrusao)
+  await page.getByRole("tab", { name: /Temperaturas/ }).click(); await sleep(2200);
+  await page.getByLabel("Novo setpoint Z1").fill("345"); await sleep(700);
+  await page.getByRole("button", { name: "Aplicar" }).first().click(); await sleep(2000);
+  await page.getByRole("tab", { name: /Deposição/ }).click(); await sleep(2400);
+  await page.getByRole("tab", { name: "Receitas" }).click(); await sleep(2400);
+  await page.getByRole("tab", { name: "Visão geral" }).click(); await sleep(1200);
+  await page.getByRole("button", { name: "Iniciar extrusão" }).click();
+  await until(page, "Extrusão", 20000); await sleep(3000);
+  await page.getByRole("tab", { name: /Temperaturas/ }).click(); await sleep(2600);
+  await post("/api/demo/fault", { fault: "pressure_warn", on: true }); await sleep(500);
+  await page.getByRole("tab", { name: "Alarmes" }).click(); await sleep(3500);
+  await post("/api/demo/fault", { fault: "pressure_warn", on: false });
+  await page.getByRole("tab", { name: "Histórico" }).click(); await sleep(3000);
+  await page.getByRole("tab", { name: "Visão geral" }).click(); await sleep(1500);
+  await ctx.close(); await b2.close();
+  fs.writeFileSync(path.join(OUT, "tour_marks.json"), JSON.stringify(marks));
+  console.log("tour:", marks);
+}

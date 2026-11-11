@@ -16,7 +16,7 @@ npm run dev          # http://localhost:5173
 A tela mostra o selo **DEMO / SIMULADO**: a lógica é o programa Ladder gerado executado por um avaliador em Python, **não** o Control Win.
 
 ## Modo PLC (Ladder rodando no CODESYS Control Win)
-Exige o CODESYS com o servidor OPC UA configurado (certificados, símbolos): passo a passo em [CP3_PLC_MODE.md](CP3_PLC_MODE.md).
+Exige o CODESYS com o servidor OPC UA configurado (certificados, símbolos): passo a passo em [MODO_PLC.md](MODO_PLC.md).
 ```powershell
 $env:LFAM_MODE = "plc"; $env:LFAM_OPCUA_URL = "opc.tcp://localhost:4840"
 $env:LFAM_OPCUA_USER = "SEU_USUARIO"; $env:LFAM_OPCUA_SECURITY = "Basic256Sha256,SignAndEncrypt"
