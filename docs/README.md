@@ -66,6 +66,8 @@ docs/
 | [AUDIT_TESTS_AND_GENERATOR](projeto/AUDIT_TESTS_AND_GENERATOR.md) | Auditoria dos testes e do gerador | projeto |
 | [tags.csv](projeto/tags.csv) | As 164 variáveis do programa (tipo, unidade, sentido) | projeto |
 
+[Histórico de mudanças do projeto](../CHANGELOG.md)
+
 ## Convenções usadas nos documentos
 - **Comprovado** = executado e observado; **compilado** = só compilação; **simulado** = planta/DEMO; **hipótese** = parâmetro não calibrado.
 - **DEMO / SIMULADO** = sem CLP; **LÓGICA NO CLP · PLANTA SIMULADA** = Ladder real no CODESYS, com a máquina simulada.

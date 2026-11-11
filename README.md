@@ -60,12 +60,13 @@ powershell -ExecutionPolicy Bypass -File .\tools\start-demo.ps1     # sobe backe
 ```
 **2. Testes:** `powershell -ExecutionPolicy Bypass -File .\tools\run-tests.ps1` (`-E2E` inclui a interface).
 **3. Ladder de verdade no CODESYS:** [instalação](docs/guias/INSTALLATION_COMPLETE.md) → [modo PLC](docs/guias/MODO_PLC.md) → `tools\start-plc.ps1 -User SEU_USUARIO -Web` (a senha é pedida de forma oculta).
-**Projeto CODESYS:** `codesys/LFAM_Automacao_Ladder.project` (o `LFAM_Automacao.project` da raiz é o original do grupo e não é alterado).
+**Projeto CODESYS:** `codesys/LFAM_Automacao_Ladder.project` (Ladder completo + servidor OPC UA já configurados).
 
 ## Documentação
 | Para quê | Documento |
 |---|---|
 | **Índice de toda a documentação** | [docs/README.md](docs/README.md) |
+| Histórico de mudanças | [CHANGELOG](CHANGELOG.md) |
 | Entender o projeto do zero | [COMO_FUNCIONA](docs/entender/COMO_FUNCIONA.md) |
 | Ver as telas e animações | [GALERIA](docs/entender/GALERIA.md) |
 | Usar em outro PC (passo a passo) | [INICIO_RAPIDO](docs/guias/INICIO_RAPIDO.md) |
