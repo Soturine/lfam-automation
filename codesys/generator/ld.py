@@ -166,7 +166,8 @@ class FbRung:
 
 class _PidModel:
     """Modelo de referencia do Util.PID (Y = KP*(e + 1/TN*int(e) + TV*de/dt) + Y_OFFSET, limitado a Y_MIN..Y_MAX,
-    com a integral ADAPTADA quando limitado). Equivalencia com o runtime CODESYS so e confirmada online."""
+    com a integral ADAPTADA por retrocalculo quando limitado). Parametrizacao (KP em %/degC, TN em s) e anti-windup
+    conferidos contra o runtime do Control Win: ver tools/cp4_pid_compare.py e docs/evidence/CP4_PID_COMPARE.txt."""
 
     def __init__(self):
         self.i = 0.0
@@ -184,8 +185,13 @@ class _PidModel:
         ti = self.i + (e * dt / a["TN"] if a["TN"] > 0 else 0.0)
         y = a["KP"] * (e + ti + a["TV"] * d) + a["Y_OFFSET"]
         lim = y > a["Y_MAX"] or y < a["Y_MIN"]
-        if lim and a["Y_MAX"] > a["Y_MIN"]:
-            y = max(a["Y_MIN"], min(a["Y_MAX"], y))   # anti-windup: integral nao acumula enquanto limitado
+        if lim and a["Y_MAX"] > a["Y_MIN"] and a["KP"]:
+            y = max(a["Y_MIN"], min(a["Y_MAX"], y))
+            # anti-windup por RETROCALCULO (comportamento MEDIDO no Util.PID real, ver docs/evidence/CP4_PID_COMPARE.txt):
+            # a integral e adaptada para que a saida fique exatamente no limite; nao e "congelada"
+            self.i = (y - a["Y_OFFSET"]) / a["KP"] - e - (a["TV"] * d)
+        elif lim and a["Y_MAX"] > a["Y_MIN"]:
+            y = max(a["Y_MIN"], min(a["Y_MAX"], y))
         else:
             self.i = ti
         return y, lim

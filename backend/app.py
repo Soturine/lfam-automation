@@ -78,7 +78,7 @@ def create_app(engine: DemoEngine | None = None, autostart: bool = True) -> Fast
             else:
                 for _ in range(max(1, int(round(speed)))):
                     eng.step(TICK_S)
-            await asyncio.sleep(TICK_S if not plc else 0.0)
+            await asyncio.sleep(TICK_S if not plc else 0.05)   # PLC: no maximo ~20 leituras/s (o ciclo do CLP e 100 ms)
 
     @contextlib.asynccontextmanager
     async def lifespan(_: FastAPI):

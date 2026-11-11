@@ -1,7 +1,7 @@
 """Compara a saida do Util.PID REAL (lida do Control Win) com o modelo de referencia `_PidModel`, sobre o trace do ensaio online.
 
 Entrada: work/cp4_trace.json (gerado por tools/cp4_scenarios.py; colunas em 'cols').
-O modelo recebe as MESMAS entradas (temperatura medida, setpoint, RESET = nao aquecendo ou termopar ruim) nos mesmos instantes.
+O trace e reamostrado na grade de 0,1 s (ciclo real do PID no CLP; o backend amostra em frequencia diferente). O modelo recebe as MESMAS entradas (temperatura medida, setpoint, RESET = nao aquecendo ou termopar ruim) nos mesmos instantes.
 Diferencas esperadas: o trace amostra ~7 Hz enquanto o PID do CLP roda a 10 Hz (defasagem de amostragem), entao o criterio
 e estatistico (erro medio/maximo e concordancia da saturacao), nao ponto a ponto.
 Saida: docs/evidence/CP4_PID_COMPARE.txt
@@ -20,8 +20,19 @@ KP, TN = 8.0, 20.0
 # indices das colunas: 0 t, 1 dt, 2-6 TT_Z1-5, 7-11 SP_Z1-5, 12-16 Y_Z1-5, 17 TT_SUBS, 18 SP_IR, 19 Y_IR, 20 IR_HAB, 21 EST_AQUEC, 22 TC_OK[5]
 
 
+def resample(rows, step=0.1):
+    """Reamostra o trace (amostras irregulares do backend) na grade de 0,1 s = ciclo da MainTask do CLP (sample-and-hold)."""
+    out, j, t = [], 0, rows[0][0]
+    while t <= rows[-1][0]:
+        while j + 1 < len(rows) and rows[j + 1][0] <= t:
+            j += 1
+        out.append([t, step] + rows[j][2:])
+        t += step
+    return out
+
+
 def main():
-    rows = json.loads(TRACE.read_text(encoding="utf-8"))["rows"]
+    rows = resample(json.loads(TRACE.read_text(encoding="utf-8"))["rows"])
     lines = [f"Comparacao Util.PID (runtime) x _PidModel (referencia) - {len(rows)} ciclos, KP={KP} %/degC, TN={TN} s", ""]
     ok_all = True
     for z in range(5):
@@ -40,8 +51,8 @@ def main():
         lin = statistics.mean(lin_diffs) if lin_diffs else float("nan")
         lines.append(f"Z{z + 1}: erro medio={statistics.mean(diffs):.2f} %  max={max(diffs):.1f} %  | regiao linear: erro medio={lin:.2f} % "
                      f"({len(lin_diffs)} ciclos) | saturacao: concordancia {sat_agree}/{sat_n}")
-        ok_all &= (not lin_diffs) or lin < 5.0
-    lines += ["", "Criterio: erro medio na regiao linear < 5 % da saida (defasagem de amostragem aceita). Resultado: "
+        ok_all &= (not lin_diffs) or lin < 3.0
+    lines += ["", "Criterio: erro medio na regiao linear < 3 % da saida (defasagem de amostragem aceita). Resultado: "
               + ("DENTRO do criterio" if ok_all else "FORA do criterio - investigar (anti-windup/integral do Util.PID)")]
     OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))

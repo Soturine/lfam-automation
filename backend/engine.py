@@ -85,6 +85,8 @@ class DemoEngine:
                 f.pressure_offset_mpa = 7.0 if on else 0.0  # bico entupido (hipotese didatica)
             elif fault == "pressure_warn":
                 f.pressure_offset_mpa = 5.0 if on else 0.0  # faixa 16,5-17 MPa a 25 rpm: aviso sem falha (hipotese didatica)
+            elif fault == "pressure_stuck":
+                f.pressure_offset_mpa = 18.0 if on else 0.0  # linha bloqueada: pressao >= 17 MPa mesmo com a rosca parada
             elif fault == "funil_empty":
                 f.funil_empty = on
             elif fault == "vent_fail":

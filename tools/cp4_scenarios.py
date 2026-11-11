@@ -13,8 +13,10 @@ from pathlib import Path
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8000"
 OUT = Path("docs/evidence/CP4_ONLINE_SCENARIOS.txt")
+if len(sys.argv) > 2:
+    OUT = Path("docs/evidence/CP4_ONLINE_SCENARIOS_COMPLEMENTO.txt")
 TRACE = Path("work/cp4_trace.json")
-FAULTS = ["tc_open_1", "tc_open_2", "tc_open_3", "tc_open_4", "tc_open_5", "pressure_high", "pressure_warn", "funil_empty",
+FAULTS = ["tc_open_1", "tc_open_2", "tc_open_3", "tc_open_4", "tc_open_5", "pressure_high", "pressure_warn", "pressure_stuck", "funil_empty",
           "vent_fail", "inv_fault", "k1_stuck", "estop_test", "disj_open"]
 RESULTS = []
 T0 = time.time()
@@ -123,6 +125,19 @@ def reset_refused_then_ok(name, injected):
         if st()["state"] != "FALHA_TRAVADA":
             break
     check(f"{name}: reset ACEITO depois que a causa sumiu", st()["state"] == "DESLIGADO", f"estado={st()['state']}")
+
+
+def stays_latched_then_reset(name, injected):
+    """Causas ligadas a extrusao (ventilador, funil, pressao) somem sozinhas quando a rosca para: a FALHA deve continuar TRAVADA
+    ate o reset do operador (primeira causa preservada), e so entao sair."""
+    fault(injected, False)
+    time.sleep(5.0)
+    s = st()
+    check(f"{name}: falha SEGUE travada depois que a causa sumiu (ate o reset)", s["state"] == "FALHA_TRAVADA" and not s["flags"]["M_CAUSA"],
+          f"estado={s['state']} M_CAUSA={s['flags']['M_CAUSA']} latched={s['latched_causes']}")
+    cmd("BT_RESET")
+    time.sleep(2.5)
+    check(f"{name}: reset do operador aceito (causa extinta)", st()["state"] == "DESLIGADO", f"estado={st()['state']}")
 
 
 class Heat:
@@ -235,7 +250,28 @@ def s5():
     reset_refused_then_ok("S5", "estop_test")
 
 
-def cycle_runs():
+def run_stop_scenario():
+    log("===== S12 parada normal e pos-ventilacao de 5 min =====")
+    h4 = Heat()
+    try:
+        idle()
+        h4.to_ready("S12")
+        h4.to_extrusion("S12")
+        cmd("STOP")
+        t_stop = time.time()
+        s, _ = wait(lambda s: s["state"] != "EXTRUSAO", 10, "sair de EXTRUSAO")
+        check("S12: STOP parou a rosca e manteve o aquecimento (PRONTO)", (not s["flags"]["INV_RUN"]) and s["state"] == "PRONTO", f"estado={s['state']}")
+        check("S12: ventilador segue ligado apos parar", s["flags"]["VENT_MOTOR"])
+        wait(lambda s: not s["flags"]["VENT_MOTOR"], 340, "fim da pos-ventilacao", poll=1.0)
+        el = time.time() - t_stop
+        check("S12: pos-ventilacao de 5 min", 290 <= el <= 320, f"{el:.1f}s")
+    except Fail as e:
+        check("S12 parada normal", False, str(e))
+    finally:
+        clear_faults()
+
+
+def cycle_runs(only_pressure=False, only_rest=False):
     t_fault = time.time()
     # --- RUN 1: nominal + pressao
     h = Heat()
@@ -264,7 +300,16 @@ def cycle_runs():
         t_fault = time.time()
         s = st()
         check("S8: pos-ventilacao do motor segue apos a falha", s["flags"]["VENT_MOTOR"], f"VENT_MOTOR={s['flags']['VENT_MOTOR']}")
-        reset_refused_then_ok("S8", "pressure_high")
+        # com a rosca parada a pressao simulada cai sozinha: a falha tem de SEGUIR travada ate o reset...
+        fault("pressure_high", False)
+        time.sleep(5)
+        s = st()
+        check("S8: falha SEGUE travada depois que a pressao normalizou (ate o reset)", s["state"] == "FALHA_TRAVADA" and not s["flags"]["M_CAUSA"],
+              f"estado={s['state']} M_CAUSA={s['flags']['M_CAUSA']} pressao={s['pressure_mpa']}")
+        # ...e com bloqueio persistente (>= 17 MPa mesmo parada) o reset tem de ser RECUSADO
+        fault("pressure_stuck")
+        time.sleep(2)
+        reset_refused_then_ok("S8", "pressure_stuck")
     except Fail as e:
         check("S6-S8 (nominal/pressao)", False, str(e))
     except Exception as e:  # noqa: BLE001
@@ -272,6 +317,10 @@ def cycle_runs():
         log(traceback.format_exc())
     finally:
         clear_faults()
+    if only_pressure:
+        if only_rest:
+            run_stop_scenario()
+        return
     # --- RUN 2: ventilador (mede em paralelo o fim da pos-ventilacao apos a falha de pressao)
     h2 = Heat()
     h2.vent_watch_t0 = t_fault
@@ -284,7 +333,7 @@ def cycle_runs():
         h2.to_extrusion("S9")
         fault("vent_fail")
         expect_fault("S9", "FALHA_VENT_10S", 25)
-        reset_refused_then_ok("S9", "vent_fail")
+        stays_latched_then_reset("S9", "vent_fail")
     except Fail as e:
         check("S9 ventilador", False, str(e))
     finally:
@@ -299,30 +348,12 @@ def cycle_runs():
         fault("funil_empty")
         s, dt = expect_fault("S11", "FALHA_SEM_MAT", 90)
         check("S11: falha so apos ~60 s", 55 <= dt <= 70, f"{dt:.1f}s")
-        reset_refused_then_ok("S11", "funil_empty")
+        stays_latched_then_reset("S11", "funil_empty")
     except Fail as e:
         check("S11 funil", False, str(e))
     finally:
         clear_faults()
-    # --- RUN 4: parada normal
-    log("===== S12 parada normal e pos-ventilacao de 5 min =====")
-    h4 = Heat()
-    try:
-        idle()
-        h4.to_ready("S12")
-        h4.to_extrusion("S12")
-        cmd("STOP")
-        t_stop = time.time()
-        s, _ = wait(lambda s: s["state"] != "EXTRUSAO", 10, "sair de EXTRUSAO")
-        check("S12: STOP parou a rosca e manteve o aquecimento (PRONTO)", (not s["flags"]["INV_RUN"]) and s["state"] == "PRONTO", f"estado={s['state']}")
-        check("S12: ventilador segue ligado apos parar", s["flags"]["VENT_MOTOR"])
-        wait(lambda s: not s["flags"]["VENT_MOTOR"], 340, "fim da pos-ventilacao", poll=1.0)
-        el = time.time() - t_stop
-        check("S12: pos-ventilacao de 5 min", 290 <= el <= 320, f"{el:.1f}s")
-    except Fail as e:
-        check("S12 parada normal", False, str(e))
-    finally:
-        clear_faults()
+    run_stop_scenario()
 
 
 def save_trace():
@@ -340,15 +371,16 @@ def save_trace():
 
 
 if __name__ == "__main__":
-    OUT.write_text("", encoding="utf-8")
+    ONLY = sys.argv[2] if len(sys.argv) > 2 else ""   # "rest" = complemento: pressao (S6-S8 com latch) + parada normal (S12)
+    OUT.write_text("", encoding="utf-8") if not ONLY else None
     h = get("/api/health")
     log(f"CP4 cenarios online, tempo real. health={h}")
     assert h["mode"] == "PLC" and h["plc_connected"], "backend precisa estar em modo PLC e conectado"
     log("ATENCAO: entradas vem da planta SIMULADA do backend; o Ladder e o canal OPC UA sao reais.")
     try:
-        for f in (s1, s2, s3, s4, s5b, s5):
+        for f in (s1,) if ONLY else (s1, s2, s3, s4, s5b, s5):
             f()
-        cycle_runs()
+        cycle_runs(only_pressure=bool(ONLY), only_rest=(ONLY == "rest"))
     finally:
         try:
             clear_faults()
