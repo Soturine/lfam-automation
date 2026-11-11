@@ -9,7 +9,7 @@ Resumo rápido para quem já tem tudo instalado e só quer retomar o trabalho:
 cd <pasta-onde-clonou>\lfam-automation
 git status
 git pull --ff-only            # salve e feche o CODESYS antes; nunca use reset --hard
-.	ools\diagnose-windows.ps1 # descobre CODESYS, Control Win, bridge MCP e ferramentas automaticamente
+.\tools\diagnose-windows.ps1 # descobre CODESYS, Control Win, bridge MCP e ferramentas automaticamente
 ~~~
 
 - O projeto é `LFAM_Automacao.project` **na raiz**. Não crie outro e não mova o arquivo com o CODESYS aberto.

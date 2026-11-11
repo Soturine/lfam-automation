@@ -17,10 +17,10 @@ Referências oficiais:
 5. Claude Code no **Windows nativo**, mesma máquina, escopo local e repositório raiz.
 6. `claude mcp list` e `/mcp` confirmam conexão, não apenas registro.
 
-No notebook mostrado em novembro de 2026:
+Use o caminho exibido em **Ferramentas > Configurar o cliente MCP** (ou liste com `.\tools\diagnose-windows.ps1`). Tabela completa de sintomas: [INSTALLATION_COMPLETE.md](INSTALLATION_COMPLETE.md#j-problemas-do-mcp).
 
 ~~~powershell
-claude mcp add --scope local --transport stdio codesys-ide -- "D:\ProgramFilesFolder\CODESYS\CODESYS MCP Server\1.1.0.0\CodesysMCPBridge\CodesysMCPBridge.exe"
+claude mcp add --scope local --transport stdio codesys-ide -- "CAMINHO_REAL_DO_BRIDGE"
 claude mcp list
 claude mcp get codesys-ide
 ~~~
