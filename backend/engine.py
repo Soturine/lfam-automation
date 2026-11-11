@@ -31,11 +31,14 @@ class DemoEngine:
         self.duty_ir = 0.0
         self.pulses: dict = {}
         self.estop_test = False       # emergencia LOGICA de teste (nao substitui a fisica)
+        self.disj_open = False        # disjuntor do aquecimento aberto (DEMO/ensaio)
         self.robo_mov = False
         self.sel_auto = False
         self.robo_cmd = False
         self.lock = threading.RLock()
         self.log: list = []
+        self._trace: list = []
+        self._trace_base = 0
 
     # ---------------------------------------------------------------- comandos (apenas SOLICITACOES)
     def request(self, name: str) -> tuple[bool, str]:
@@ -80,6 +83,8 @@ class DemoEngine:
                 f.tc_open[int(fault[-1]) - 1] = on
             elif fault == "pressure_high":
                 f.pressure_offset_mpa = 7.0 if on else 0.0  # bico entupido (hipotese didatica)
+            elif fault == "pressure_warn":
+                f.pressure_offset_mpa = 5.0 if on else 0.0  # faixa 16,5-17 MPa a 25 rpm: aviso sem falha (hipotese didatica)
             elif fault == "funil_empty":
                 f.funil_empty = on
             elif fault == "vent_fail":
@@ -88,6 +93,8 @@ class DemoEngine:
                 f.inv_fault = on
             elif fault == "k1_stuck":
                 f.k1_stuck_closed = on
+            elif fault == "disj_open":
+                self.disj_open = on
             elif fault == "estop_test":
                 self.estop_test = on
             else:
@@ -115,7 +122,7 @@ class DemoEngine:
                 "PT_FUNDIDO_RAW": int(max(0.0, min(35.0, s["PT_FUNDIDO_MPA"])) / 35.0 * 27648),
                 "TT_SUBSTRATO_RAW": int(max(0.0, min(500.0, s["TT_SUBSTRATO_C"])) / 500.0 * 27648),
                 "TT_ZSR": s["TT_ZSR"], "TT_RESF": s["TT_RESF"],
-                "SEG_OK": not self.estop_test, "MOT_SOBRETEMP": True, "DISJ_AQUEC": True,
+                "SEG_OK": not self.estop_test, "MOT_SOBRETEMP": True, "DISJ_AQUEC": not self.disj_open,
                 "BT_DESLIGA": "STOP" not in self.pulses, "SEL_AUTO": self.sel_auto, "ROBO_CMD_EXTR": self.robo_cmd,
                 "ROBO_EM_MOV": self.robo_mov, "SECADOR_OK": True,
                 "INV_PRONTO": s["INV_PRONTO"], "INV_FALHA": s["INV_FALHA"], "FUNIL_BAIXO": s["FUNIL_BAIXO"],
@@ -140,8 +147,21 @@ class DemoEngine:
                 self.pulses[k] -= dt
                 if self.pulses[k] <= 0:
                     del self.pulses[k]
+            self._trace.append([time.time(), dt] + [self.env.get(f"TT_Z{z}", 0.0) for z in range(1, 6)] + list(self.sp_z)
+                               + [self.env.get(f"Y_Z{z}", 0.0) for z in range(1, 6)]
+                               + [self.env.get("TT_SUBSTRATO_C", 0.0), self.sp_ir, self.env.get("Y_IR", 0.0), bool(self.env.get("IR_HAB")),
+                                  bool(self.env.get("EST_AQUEC")), [bool(self.env.get(f"TC_Z{z}_OK", True)) for z in range(1, 6)]])
+            if len(self._trace) > 100000:
+                del self._trace[:20000]
+                self._trace_base += 20000
             self.plant.step(dt, self._plant_inputs())
             self.t += dt
+
+    def trace_since(self, since: int) -> dict:
+        with self.lock:
+            i = max(0, since - self._trace_base)
+            return {"next": self._trace_base + len(self._trace), "cols": "t,dt,TT_Z1-5,SP_Z1-5,Y_Z1-5,TT_SUBS,SP_IR,Y_IR,IR_HAB,EST_AQUEC,TC_OK[5]",
+                    "rows": self._trace[i:i + 20000]}
 
     CAUSE_KEYS = ("SEG_OK", "MOT_SOBRETEMP", "INV_FALHA", "PRESSAO_ALTA_17", "SOBRETEMP_400", "TC_FAULT",
                   "FALHA_RESF_2M", "FALHA_SEM_MAT", "FALHA_VENT_10S", "FALHA_K1_COL")

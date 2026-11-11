@@ -5,6 +5,7 @@ Nao ha rota que acione motor/SSR diretamente."""
 from __future__ import annotations
 
 import asyncio
+import time
 import contextlib
 import os
 
@@ -56,6 +57,7 @@ def create_app(engine: DemoEngine | None = None, autostart: bool = True) -> Fast
     speed = 1.0 if plc else float(os.environ.get("LFAM_TIME_SCALE", "1"))   # PLC roda em tempo real (o CLP tem o proprio ciclo)
 
     async def loop():
+        last = time.monotonic()
         while True:
             if plc and not eng.transport.connected:
                 try:
@@ -66,12 +68,17 @@ def create_app(engine: DemoEngine | None = None, autostart: bool = True) -> Fast
                     eng.pulses.clear()
                     await asyncio.sleep(3.0)             # recuo entre tentativas; nenhum comando e reenviado
                 continue
-            for _ in range(max(1, int(round(speed)))):
-                if plc:
-                    await asyncio.to_thread(eng.step, TICK_S)
-                else:
+            if plc:
+                # No modo PLC o tempo e o REAL: os TON do Ladder correm em tempo real, a planta simulada tem de seguir o mesmo relogio
+                # (cada ciclo OPC UA leva mais que 100 ms; passo fixo de 0,1 s faria a planta andar mais devagar que o Ladder).
+                now = time.monotonic()
+                dt = min(max(now - last, 0.02), 0.5)
+                last = now
+                await asyncio.to_thread(eng.step, dt)
+            else:
+                for _ in range(max(1, int(round(speed)))):
                     eng.step(TICK_S)
-            await asyncio.sleep(TICK_S)
+            await asyncio.sleep(TICK_S if not plc else 0.0)
 
     @contextlib.asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -88,6 +95,11 @@ def create_app(engine: DemoEngine | None = None, autostart: bool = True) -> Fast
     @app.get("/api/health")
     def health():
         return {"status": "ok", "mode": eng.transport.mode, "plc_connected": plc and eng.transport.healthy, "link_error": eng.link_error}
+
+    @app.get("/api/trace")
+    def trace(since: int = 0):
+        """Registro por ciclo (so para ensaios/validacao): tempo, dt, temperaturas, setpoints e saidas dos PIDs."""
+        return eng.trace_since(since)
 
     @app.get("/api/state")
     def state():
