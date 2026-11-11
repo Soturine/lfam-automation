@@ -13,6 +13,8 @@ CORE = (
     + T.NET08
     + R.NET09
     + [L.NET10_ROSCA]
+    + R.NET10B
+    + R.NET14A
     + T.NET11
     + R.NET12[2:]
     + R.NET06

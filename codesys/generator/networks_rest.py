@@ -60,3 +60,9 @@ NET15 = [
     Rung("NETWORK 15 - LUZ_VERM_SIRENE: falha travada OU aviso de pressao OU trecho frio",
          P(C("FALHA_GERAL"), C("ALM_PRESSAO_16_5"), C("ALM_ZSR_BAIXA")), [Coil("LUZ_VERM_SIRENE")]),
 ]
+
+# NETWORK 10 (saida) - INV_RUN segue a rosca (unico escritor)
+NET10B = [Rung("NETWORK 10 - INV_RUN segue EST_EXTRUSAO (unico escritor)", C("EST_EXTRUSAO"), [Coil("INV_RUN")])]
+
+# NETWORK 14 (parte alimentacao) - carregador liga quando o funil esvazia (FUNIL_BAIXO = 0). Contagem CTU ainda pendente.
+NET14A = [Rung("NETWORK 14 - ALIM_FUNIL: carregador liga com funil vazio (FUNIL_BAIXO=0)", C("FUNIL_BAIXO", neg=True), [Coil("ALIM_FUNIL")])]

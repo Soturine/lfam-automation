@@ -61,9 +61,10 @@ def test_no_material_fault_after_60s_only_when_extruding_and_loader_on():
 
 
 def test_vent_fault_after_10s_and_k1_stuck_after_1s():
-    env = run({**NORMAL, "INV_RUN": True, "VENT_OK": False}, 9.0)
+    env = run({**NORMAL, "__ton_T_ENCHARQUE": 900.0, "BT_LIGA": True, "VENT_OK": False}, 9.0)
     assert not env["FALHA_VENT_10S"]
-    assert run(env, 2.0)["FALHA_VENT_10S"]
+    env = run(env, 2.0)   # a causa some quando a falha trava a rosca: o que fica e a falha travada
+    assert env["FALHA_GERAL"] and not env["EST_EXTRUSAO"]
     env = run({**NORMAL, "K1_CONF": True, "K1_AQUEC": False}, 0.5)
     assert not env["FALHA_K1_COL"]
     assert run(env, 1.0)["FALHA_K1_COL"]
