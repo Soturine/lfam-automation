@@ -36,7 +36,7 @@ claude mcp get codesys-ide
 | MCP registrado mas desconectado | Registro local não prova que servidor CODESYS esteja ativo |
 | Versão nova do add-on | Bridge muda de caminho: atualizar a entrada Claude |
 
-## Histórico confirmado em OUTRO computador
+## Histórico confirmado em OUTRO computador (exemplo histórico, não regra)
 
 A conexão falhou com `CONNECTION_CLOSED`. O log de depuração apontou:
 
@@ -66,6 +66,6 @@ Confira também Segurança do Windows > Controle de aplicativos e do navegador >
 
 ## Limitações funcionais
 
-O MCP oficial atualmente permite consultar a árvore e documentação, criar/editar Structured Text e obter diagnósticos de compilação. Isso **não implica geração automática de redes Ladder gráficas** nem de telas HMI. Para Ladder, validar importação CODESYS XML / PLCopen XML ou API de automação com evidência de compilação e execução.
+O MCP oficial 1.1.0.0 permite consultar a árvore e documentação, criar/editar **somente Structured Text** (objetos gráficos são só leitura) e obter diagnósticos de compilação. Isso **não implica geração automática de redes Ladder gráficas** nem de telas HMI. Para Ladder, validar importação CODESYS XML / PLCopen XML ou API de automação com evidência de compilação e execução.
 
 MCP é **integração com o editor**. OPC UA/WebSocket é **integração com o CLP e a HMI**. Uma não substitui a outra.

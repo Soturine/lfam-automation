@@ -2,7 +2,7 @@
 
 Projeto acadêmico de automação de uma extrusora LFAM (Large Format Additive Manufacturing), com programação IEC 61131-3 em Ladder, CLP virtual CODESYS, proposta de supervisório web e modelo didático do processo.
 
-> **Estado atual:** o arquivo real `LFAM_Automacao.project` está versionado na raiz. Sua presença no GitHub **não significa** que as 15 redes Ladder estejam implementadas, compiladas ou testadas. SCADA, backend e simulação física permanecem no planejamento.
+> **Estado atual:** `LFAM_Automacao.project` está versionado na raiz; suas 15 redes Ladder **ainda não** estão implementadas. Já existem: POC de uma rede LD importada por PLCopen XML e compilada (execução online pendente), simulador físico didático com testes, contrato de tags e reconciliação das fontes. SCADA e backend ainda não foram construídos. Ver `docs/evidence/`.
 
 ## Projeto existente
 
@@ -24,13 +24,14 @@ O estudo original menciona Siemens S7-1200 CPU 1214C DC/DC/DC. **CODESYS Control
 
 ## Documentação
 
-- [Instalação e retomada no Windows](docs/SETUP_WINDOWS.md)
+- **[Guia completo de instalação (comece aqui)](docs/INSTALLATION_COMPLETE.md)** — do zero até o Ladder rodando no Control Win
+- [Retomada rápida no Windows](docs/SETUP_WINDOWS.md)
 - [MCP do CODESYS: configuração e diagnóstico](docs/MCP_TROUBLESHOOTING.md)
 - [Arquitetura e responsabilidades](docs/ARCHITECTURE.md)
 - [Plano de entrega, redes e telas](docs/DELIVERY_PLAN.md)
 - [Instruções para Claude Code](docs/CLAUDE_HANDOFF.md)
 
-Execute o diagnóstico local, no PowerShell aberto na raiz:
+Diagnóstico local (descobre o ambiente sozinho), no PowerShell aberto na raiz:
 
 ~~~powershell
 .\tools\diagnose-windows.ps1

@@ -4,13 +4,7 @@
 
 Repositório privado `Soturine/lfam-automation`. **Não** recriar o projeto CODESYS: abrir `LFAM_Automacao.project` na raiz, analisar antes de alterar. Windows nativo, CODESYS V3.5 SP22 Patch 4, Control Win V3 x64, MCP Server 1.1.0.0.
 
-A tela de configuração MCP no notebook mostra o bridge em:
-
-~~~text
-D:\ProgramFilesFolder\CODESYS\CODESYS MCP Server\1.1.0.0\CodesysMCPBridge\CodesysMCPBridge.exe
-~~~
-
-Esse caminho não deve ser commitado em configuração MCP compartilhada. Verificar o estado de licença e servidor **nesta máquina**. A conexão MCP só está comprovada quando `claude mcp list` e leitura efetiva do projeto funcionarem.
+O caminho do bridge MCP é **específico de cada instalação** (Ferramentas > Configurar o cliente MCP, ou `tools/diagnose-windows.ps1`) e não deve ser commitado em configuração compartilhada. Verificar o estado de licença e servidor **nesta máquina**. A conexão MCP só está comprovada quando `claude mcp list` e leitura efetiva do projeto funcionarem.
 
 ## Instrução inicial ao agente
 
@@ -30,3 +24,9 @@ No Git, use apenas identidade local do dono do repositório, nenhum Co-Authored-
 - CODESYS Control Win virtual: não é Siemens S7-1200; validar mapeamento E/S e blocos.
 - GitHub atual: arquivo `.project` real está na raiz. Os temporários devem permanecer ignorados.
 - Sem conexão comprovada, nenhuma alegação de SCADA online, PIDs validados ou runtime rodando.
+
+## Atualização (novembro de 2026)
+
+- MCP validado com chamadas reais (`docs/evidence/CP1_MCP_INSPECTION.md`). Ele **não cria Ladder**; o projeto usa PLCopen XML + Scripting API (`tools/codesys_scripts/`).
+- Bloqueio do CP2: o Control Win exige **administrador do dispositivo** (`Prompt_ActivateUserManagement_New`). Cada pessoa cria o seu (guia, etapa E). **Nunca** desative a autenticação nem peça a senha ao agente.
+- Setup completo: [INSTALLATION_COMPLETE.md](INSTALLATION_COMPLETE.md).
