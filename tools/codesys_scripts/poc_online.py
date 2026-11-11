@@ -19,10 +19,15 @@ try:
         onl.set_prepared_value("PLC_PRG.BT_TESTE", bt)
         onl.set_prepared_value("PLC_PRG.FALHA_TESTE", fl)
         onl.write_prepared_values()
-        time.sleep(1.5)
-        est = onl.read_value("PLC_PRG.EST_TESTE")
+        reads = []
+        for _ in range(8):  # le varias vezes: separa atraso de leitura de logica invertida
+            time.sleep(0.5)
+            reads.append("%s/%s/%s" % (onl.read_value("PLC_PRG.BT_TESTE"), onl.read_value("PLC_PRG.FALHA_TESTE"),
+                                       onl.read_value("PLC_PRG.EST_TESTE")))
+        est = reads[-1].split("/")[2]
         results.append((bt, fl, est))
-        w("BT_TESTE=%s FALHA_TESTE=%s -> EST_TESTE=%s" % (bt, fl, est))
+        w("BT=%s FALHA=%s leituras BT/FALHA/EST: %s" % (bt, fl, " | ".join(reads)))
+        w("   estavel -> EST_TESTE=%s" % est)
     # release: leave inputs FALSE
     onl.set_prepared_value("PLC_PRG.BT_TESTE", "FALSE"); onl.set_prepared_value("PLC_PRG.FALHA_TESTE", "FALSE")
     onl.write_prepared_values()

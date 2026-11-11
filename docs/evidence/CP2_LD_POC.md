@@ -21,3 +21,9 @@ O projeto original `LFAM_Automacao.project` NÃO foi modificado (trabalho só em
 - Pendente (decisão do dono): criar o admin do runtime local no IDE (Online > Login, senha só local) ou desligar a exigência
   de gerenciamento de usuários na CÓPIA `LFAM_POC.project` (Configurações do projeto). Execução online ainda NÃO observada.
 - `tools/codesys_scripts/poc_online.py`: login com `OnlineChangeOption.Try` e `delete_foreign_apps=False`.
+
+## Execucao online - tentativa 1 (2026-11-11, dentro do IDE, admin do dispositivo criado pelo usuario)
+Observado: aplicacao `LFAM_POC` em RUN no Control Win local, 0 erros/0 avisos, device conectado.
+Resultado do script (leitura 1,5 s apos cada escrita): (F,F)->F ok; (T,F)->F (esperado T); (T,T)->T (esperado F). **CP2 NAO concluido.**
+Hipoteses (nao confirmadas): (A) leitura atrasada um passo; (B) logica invertida. O editor mostra o contato de FALHA_TESTE negado,
+o que favorece A. Script atualizado para ler 8 vezes por combinacao e registrar BT/FALHA/EST; reexecucao pendente.
