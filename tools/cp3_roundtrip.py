@@ -40,6 +40,14 @@ s = wait(lambda s: s["plc_connected"], 30, "plc_connected (heartbeat do CLP muda
 print("1) conectado; heartbeat vivo; estado:", s["state"], "t(s)=", s["t_sim_s"])
 hb1 = s["timestamp"]
 
+if s["state"] == "FALHA_TRAVADA":
+    # Partida/Download: o Ladder inicia com entradas em 0 (estado seguro = falha) e trava a falha antes de receber as entradas reais.
+    print("1b) falha travada na partida (causas travadas:", s["latched_causes"], "; causa ativa agora:", s["flags"]["M_CAUSA"], ")")
+    assert not s["flags"]["M_CAUSA"], "ainda ha causa ativa: o reset deve ser recusado; confira as entradas"
+    post("/api/command", {"name": "BT_RESET"})
+    s = wait(lambda s: s["state"] != "FALHA_TRAVADA", 15, "reset de partida aceito pelo Ladder")
+    print("1c) reset do operador aceito pelo Ladder; estado:", s["state"])
+
 r = post("/api/command", {"name": "BT_AQUEC"})
 print("2) comando solicitado:", r)
 s = wait(lambda s: s["flags"]["K1_AQUEC"] and s["state"] != "DESLIGADO", 15, "K1_AQUEC confirmado pelo Ladder")

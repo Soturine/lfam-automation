@@ -1,0 +1,16 @@
+CP3 - execucao real em 2026-11-11 (backend em modo PLC; Ladder LFAM_PLC.project rodando no CODESYS Control Win V3 x64 3.5.22.40)
+Transporte: OPC UA, Basic256Sha256 SignAndEncrypt, usuario/senha do dispositivo (senha so em variavel de ambiente), certificado de cliente autoassinado local.
+Saida de tools/cp3_roundtrip.py:
+
+health: {'status': 'ok', 'mode': 'PLC', 'plc_connected': True, 'link_error': ''}
+1) conectado; heartbeat vivo; estado: FALHA_TRAVADA t(s)= 37.5
+1b) falha travada na partida (causas travadas: ['SEG_OK', 'MOT_SOBRETEMP'] ; causa ativa agora: False )
+1c) reset do operador aceito pelo Ladder; estado: DESLIGADO
+2) comando solicitado: {'accepted': True, 'message': 'solicitacao enviada; aguarde confirmacao do estado', 'confirmed': False}
+3) CONFIRMADO pelo Ladder no Control Win -> K1_AQUEC= True estado= AQUECIMENTO
+4) Ladder travou a falha e abriu K1; causas latched: ['SEG_OK']
+5) reset aceito pelo programa somente apos a causa sumir; estado: DESLIGADO
+CP3 OK: ida e volta real HMI -> FastAPI -> OPC UA -> Ladder -> HMI
+
+Observacoes: (a) primeira execucao do script falhou de forma legitima: o Ladder inicia com entradas em 0 (estado seguro = falha) e trava a falha na partida;
+o script passou a fazer o reset do operador antes do teste. (b) As entradas sao produzidas pela planta SIMULADA do backend e escritas no Ladder; o que e REAL aqui e a execucao do Ladder e o canal OPC UA, nao a planta.
