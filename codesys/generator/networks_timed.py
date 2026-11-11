@@ -33,7 +33,7 @@ NET07_FLAGS = [
 
 # NETWORK 08 - encharque de 15 min (zonas >= 330 em AND; TON zera se qualquer zona cair)
 NET08 = [CmpRung(f"NETWORK 08 - Z{z} >= 330 degC", "GE", f"TT_Z{z}", "330.0", f"Z{z}_ATEMP") for z in ZONES]
-NET08.append(Rung("NETWORK 08 - EST_ENCHARQUE: todas as zonas >= 330", S(*[C(f"Z{z}_ATEMP") for z in ZONES]), [Coil("EST_ENCHARQUE")]))
+NET08.append(Rung("NETWORK 08 - EST_ENCHARQUE: aquecimento ligado e todas as zonas >= 330 (Prancha 2: gate por EST_AQUEC)", S(C("EST_AQUEC"), *[C(f"Z{z}_ATEMP") for z in ZONES]), [Coil("EST_ENCHARQUE")]))
 NET08.append(TonRung("NETWORK 08 - encharque continuo de 15 min", C("EST_ENCHARQUE"), "T_ENCHARQUE", 900.0, "ENCH_OK"))
 
 # NETWORK 11 - ventilacao do motor: liga com a rosca e segue 5 min apos parar

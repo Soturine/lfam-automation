@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from codesys.generator import program as PRG
 from codesys.generator.ld import scan
 
-NORMAL = dict(SECADOR_OK=True, INV_PRONTO=True, SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True, FUNIL_BAIXO=True, VENT_OK=True,
+NORMAL = dict(EST_AQUEC=True, SECADOR_OK=True, INV_PRONTO=True, SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True, FUNIL_BAIXO=True, VENT_OK=True,
               **{f"TC_Z{z}_OK": True for z in range(1, 6)}, **{f"TT_Z{z}": 350.0 for z in range(1, 6)}, TT_RESF=40.0)
 
 
@@ -65,7 +65,7 @@ def test_vent_fault_after_10s_and_k1_stuck_after_1s():
     assert not env["FALHA_VENT_10S"]
     env = run(env, 2.0)   # a causa some quando a falha trava a rosca: o que fica e a falha travada
     assert env["FALHA_GERAL"] and not env["EST_EXTRUSAO"]
-    env = run({**NORMAL, "K1_CONF": True, "K1_AQUEC": False}, 0.5)
+    env = run({**NORMAL, "EST_AQUEC": False, "K1_CONF": True}, 0.5)   # K1 sem comando mas confirmando = colado
     assert not env["FALHA_K1_COL"]
     assert run(env, 1.0)["FALHA_K1_COL"]
 

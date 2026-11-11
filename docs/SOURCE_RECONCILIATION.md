@@ -27,6 +27,23 @@ Ordem de decisão: enunciado > fatos da máquina e lista E/S v2 > correções de
 | D14 | Estado da CPU 1214C: 22 DI / 18 DO e pares reserva | Contas de reserva ok; analógicas sem reserva | Sem mudança; só contexto Siemens | — |
 | D15 | Monografia: TT_Z1..Z4 em `%IW96..102`, rede 2 cita `%IW96..%IW104`, TT_ZSR `%IW106`, TT_RESF `%IW108` | Endereços de canal 5/6 só aparecem na rede 3 (1000 em `%IW108`) | Mapa canal→IW em `tags.csv` (96,98,100,102,104,106,108) | Revisão |
 
+## Divergências adicionais (revisão visual das Pranchas 2–4 e do fluxograma, 2026-11-11)
+
+| # | Onde | Observação | Decisão no programa |
+|---|---|---|---|
+| D16 | Prancha 2, rede 6 (e Prancha 4, rede 13) | Contatos de permissivo ficam **antes** do bloco `PID_Compact`: o bloco só executa com os contatos fechados — o erro que a monografia (§9) descreve. | PID chamado **sem EN** todo ciclo; permissivos vão para `RESET` do PID e para o gate do SSR |
+| D17 | Prancha 2, rede 5 | `EST_AQUEC` e `K1_AQUEC` são duas bobinas da mesma rede. | Duas redes (05 e 05b) com **escritor único** por saída |
+| D18 | Prancha 2, redes 7 e 8 | Resfriamento e encharque dependem de `EST_AQUEC`. | **Encharque** adotou o gate (sem aquecimento não há PRONTO). **Resfriamento não** (câmara quente > 100 °C é falha por 2 min mesmo com aquecimento desligado) |
+| D19 | Prancha 3, rede 9 | `FUNIL_BAIXO` aparece no PRONTO; monografia/rede 3 dizem que não deve (D10). | Mantido D10 (sem funil no PRONTO) |
+| D20 | Prancha 3, rede 11 | `TOF` de 5 min sobre `INV_RUN`. | Equivalente com `TON` (rede 11) e teste de religar durante a pós-ventilação |
+| D21 | Prancha 3, rede 12 | A linha de pressão faz `MOVE 17 rpm` para `INV_REF`, com dois escritores em `QW70` (a própria prancha avisa). | D5/D6: `LIMIT(17, SP×0,9, 34)`, um escritor |
+| D22 | Prancha 4, rede 14 | Carregador exige `EST_AQUEC` e `/FALHA_GERAL`; monografia diz que carrega "inclusive durante uma falha". CTU com `PV = 500`. | Segui a monografia (carrega sempre que o funil esvazia); CTU com `PV = 65535` e reset pelo SCADA |
+| D23 | Prancha 4, rede 15 | `ALM_ZSR_BAIXA` só no encharque; amarela apaga em PRONTO; verde exige `/FALHA_GERAL`; sirene inclui `SOBRETEMP_390` e câmara > 100 °C. | **Adotado** (rede 15 e testes) |
+| D24 | Fluxograma | Pressão ≥ 16,5 → "alarme e reduzir rotação"; falta de material > 60 s → "falha". Sequência coerente com o programa. A decisão "Parada normal → ventilação 5 min → pronto" está de acordo com a rede 11. | Sem mudança |
+| D25 | Prancha 1, rede 3 | `FALHA_SEM_MAT` usa `ALIM_FUNIL` e `EST_EXTRUSAO`; mantido. | Sem mudança |
+
+**Ainda não revisado visualmente:** telas SCADA 02–06 de referência e as imagens embutidas nos DOCX/PPTX (só a tela 01 e as pranchas/fluxograma foram abertos).
+
 ## Equivalências Siemens → CODESYS
 
 | Siemens | CODESYS (Control Win) |

@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from codesys.generator import program as PRG
 from codesys.generator.ld import scan
 
-NORMAL = dict(SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True, FUNIL_BAIXO=True, VENT_OK=True,
+NORMAL = dict(EST_AQUEC=True, SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True, FUNIL_BAIXO=True, VENT_OK=True,
               SECADOR_OK=True, INV_PRONTO=True, K1_CONF=True,
               **{f"TT_Z{z}_RAW": 3500 for z in range(1, 6)}, TT_ZSR_RAW=0, TT_ZSR=300.0, TT_RESF=40.0,
               PT_FUNDIDO_RAW=0, TT_SUBSTRATO_RAW=0, SP_RPM_OPERADOR=25.0)
@@ -88,3 +88,21 @@ def test_full_xml_wellformed_and_assignments_present():
     outs = [o.find("p:expression", ns).text for o in root.findall(".//p:outVariable", ns)]
     assert "REF_RPM_LIM" in outs and "PT_FUNDIDO_MPA" in outs
     assert len(outs) == len(set(outs)), "escritor unico tambem para atribuicoes"
+
+
+def test_tower_alignment_with_reference_plates():
+    ready = cycle({**NORMAL, "__ton_T_ENCHARQUE": 900.0}, 2)
+    assert ready["EST_PRONTO"] and not ready["LUZ_AMARELA"], "amarela apaga quando pronto (Prancha 4)"
+    run_ = cycle({**NORMAL, "__ton_T_ENCHARQUE": 900.0, "BT_LIGA": True}, 3)
+    assert run_["LUZ_VERDE"] and not run_["LUZ_AMARELA"]
+    hot = cycle({**NORMAL, **{"TT_Z2_RAW": 3910}}, 2)
+    assert hot["SOBRETEMP_390_Z2"] and hot["LUZ_VERM_SIRENE"], "pre-alarme de 390 aciona a sirene (aviso, sem travar falha)"
+    assert not hot.get("FALHA_GERAL")
+    cold_zsr = {**NORMAL, "TT_ZSR": 200.0}
+    assert cycle({**cold_zsr, "EST_AQUEC": False}, 2)["ALM_ZSR_BAIXA"] is False, "alarme do trecho frio so durante o encharque"
+    assert cycle(cold_zsr, 2)["ALM_ZSR_BAIXA"] is True
+
+
+def test_soak_requires_heating_on():
+    env = cycle({**NORMAL, "EST_AQUEC": False, "SEG_OK": True}, 3)
+    assert not env["EST_ENCHARQUE"] and not env.get("ENCH_OK"), "sem aquecimento nao ha encharque nem PRONTO"

@@ -2,7 +2,7 @@
 from codesys.generator import program as PRG
 from codesys.generator.ld import scan
 
-BASE = dict(SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True, FUNIL_BAIXO=True, VENT_OK=True,
+BASE = dict(EST_AQUEC=True, SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True, FUNIL_BAIXO=True, VENT_OK=True,
             SECADOR_OK=True, INV_PRONTO=True, K1_CONF=True, TT_ZSR=300.0, TT_RESF=40.0, PT_FUNDIDO_RAW=0, TT_SUBSTRATO_RAW=0,
             SP_RPM_OPERADOR=25.0, SP_IR_C=200.0, **{f"SP_Z{z}": 350.0 for z in range(1, 6)})
 
@@ -34,7 +34,7 @@ def test_pid_saturates_at_100_and_has_anti_windup():
 
 
 def test_pwm_duty_matches_pid_output_over_one_period():
-    env = run({**BASE, **temps(3450), "BT_AQUEC": True}, 30)           # perto do SP -> saida intermediaria
+    env = run({**BASE, **temps(3495), "BT_AQUEC": True}, 30)           # a 0,5 degC do SP -> saida intermediaria (nao saturada)
     y = env["Y_Z2"]
     assert 0.0 < y < 100.0
     on = n = 0

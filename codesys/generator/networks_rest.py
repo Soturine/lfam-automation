@@ -53,12 +53,14 @@ NET13 = [
 
 # NETWORK 15 - alarmes e coluna luminosa (aviso x falha travada)
 NET15 = [
-    CmpRung("NETWORK 15 - ALM_ZSR_BAIXA: trecho sem resistencia < 220 degC", "LT", "TT_ZSR", "220.0", "ALM_ZSR_BAIXA"),
-    Rung("NETWORK 15 - LUZ_VERDE: extrusao", C("EST_EXTRUSAO"), [Coil("LUZ_VERDE")]),
-    Rung("NETWORK 15 - LUZ_AMARELA: aquecendo ou aguardando encharque (sem extrusao, sem falha)",
-         S(C("EST_AQUEC"), C("EST_EXTRUSAO", neg=True), C("FALHA_GERAL", neg=True)), [Coil("LUZ_AMARELA")]),
-    Rung("NETWORK 15 - LUZ_VERM_SIRENE: falha travada OU aviso de pressao OU trecho frio",
-         P(C("FALHA_GERAL"), C("ALM_PRESSAO_16_5"), C("ALM_ZSR_BAIXA")), [Coil("LUZ_VERM_SIRENE")]),
+    CmpRung("NETWORK 15 - ZSR_ABAIXO: trecho sem resistencia < 220 degC", "LT", "TT_ZSR", "220.0", "ZSR_ABAIXO"),
+    Rung("NETWORK 15 - ALM_ZSR_BAIXA: so durante o encharque (Prancha 4)", S(C("EST_ENCHARQUE"), C("ZSR_ABAIXO")), [Coil("ALM_ZSR_BAIXA")]),
+    Rung("NETWORK 15 - LUZ_VERDE: extrusao sem falha travada", S(C("EST_EXTRUSAO"), C("FALHA_GERAL", neg=True)), [Coil("LUZ_VERDE")]),
+    Rung("NETWORK 15 - LUZ_AMARELA: aquecendo ou aguardando encharque (nao pronto, sem extrusao, sem falha)",
+         S(C("EST_AQUEC"), C("EST_PRONTO", neg=True), C("EST_EXTRUSAO", neg=True), C("FALHA_GERAL", neg=True)), [Coil("LUZ_AMARELA")]),
+    Rung("NETWORK 15 - LUZ_VERM_SIRENE: falha travada OU pressao 16,5 OU trecho frio OU zona > 390 OU camara > 100 degC",
+         P(C("FALHA_GERAL"), C("ALM_PRESSAO_16_5"), C("ALM_ZSR_BAIXA"), C("RESF_ACIMA_100"), *[C(f"SOBRETEMP_390_Z{z}") for z in ZONES]),
+         [Coil("LUZ_VERM_SIRENE")]),
 ]
 
 # NETWORK 10 (saida) - INV_RUN segue a rosca (unico escritor)
