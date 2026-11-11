@@ -96,3 +96,70 @@ CONT_LOTES,INT,,,MW30,R,,CLP rede 14 (CTU),PENDENTE,
 HMI_RESET_LOTES,BOOL,,pulso,M5.0,W-req,,HMI,PENDENTE,
 PLC_HEARTBEAT,UINT,,contador,,R,,CLP,PENDENTE,qualidade/comunicacao HMI
 PLC_CONNECTED,BOOL,,,,R,,gateway,PENDENTE,"derivado do heartbeat, nunca da HMI"
+CAUSA_FALHA_K1_COL,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CAUSA_FALHA_RESF_2M,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CAUSA_FALHA_SEM_MAT,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CAUSA_FALHA_VENT_10S,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CAUSA_INV_FALHA,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CAUSA_MOT_SOBRETEMP,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CAUSA_PRESSAO_ALTA_17,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CAUSA_SEG_OK,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CAUSA_SOBRETEMP_400,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CAUSA_TC_FAULT,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),latch da primeira causa de falha (rede 04d/04e)
+CTU_LOTES,CTU,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia CTU
+FUNIL_PULSO,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+IR_ABAIXO_MAX,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+IR_ACIMA_MIN,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+IR_HAB,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+LIM_IR,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID LIMITS_ACTIVE (diagnostico)
+LIM_Z1,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID LIMITS_ACTIVE (diagnostico)
+LIM_Z2,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID LIMITS_ACTIVE (diagnostico)
+LIM_Z3,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID LIMITS_ACTIVE (diagnostico)
+LIM_Z4,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID LIMITS_ACTIVE (diagnostico)
+LIM_Z5,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID LIMITS_ACTIVE (diagnostico)
+OVF_IR,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID OVERFLOW (diagnostico)
+OVF_Z1,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID OVERFLOW (diagnostico)
+OVF_Z2,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID OVERFLOW (diagnostico)
+OVF_Z3,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID OVERFLOW (diagnostico)
+OVF_Z4,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID OVERFLOW (diagnostico)
+OVF_Z5,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),PID OVERFLOW (diagnostico)
+PID_IR,PID,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia Util.PID
+PID_Z1,PID,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia Util.PID
+PID_Z2,PID,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia Util.PID
+PID_Z3,PID,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia Util.PID
+PID_Z4,PID,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia Util.PID
+PID_Z5,PID,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia Util.PID
+PWM_FASE,INT,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),pulso PWM (fase x saida do PID)
+RESF_ACIMA_100,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+RESF_HI,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+RESF_LO,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+RT_FUNIL,R_TRIG,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia R_TRIG
+SOBRETEMP_400_Z1,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+SOBRETEMP_400_Z2,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+SOBRETEMP_400_Z3,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+SOBRETEMP_400_Z4,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+SOBRETEMP_400_Z5,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z1_ABERTO,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z1_OK,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z2_ABERTO,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z2_OK,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z3_ABERTO,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z3_OK,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z4_ABERTO,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z4_OK,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z5_ABERTO,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+TC_Z5_OK,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+T_ENCHARQUE,TON,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia TON
+T_FALHA_VENT,TON,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia TON
+T_FUNIL_VAZIO,TON,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia TON
+T_K1_COLADO,TON,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia TON
+T_POS_VENT,TON,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia TON
+T_RESF_100C,TON,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),instancia TON
+VENT_FIM,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa
+Y_IR,REAL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),saida do Util.PID (%)
+Y_Z1,REAL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),saida do Util.PID (%)
+Y_Z2,REAL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),saida do Util.PID (%)
+Y_Z3,REAL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),saida do Util.PID (%)
+Y_Z4,REAL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),saida do Util.PID (%)
+Y_Z5,REAL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),saida do Util.PID (%)
+ZSR_ABAIXO,BOOL,,,,R,,programa gerado (codesys/generator),IMPLEMENTADO (compilado; online pendente),variavel interna do programa

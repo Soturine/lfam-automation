@@ -21,7 +21,7 @@ Regra: compilar **não** é executar; DEMO **não** é CLP.
 | Servidor OPC UA do Control Win | docs oficiais | exige Communication Manager + OPC UA Server no projeto (UI do IDE) | — | `CP3_PLC_MODE.md` | **PENDENTE** (ação manual; minha conclusão anterior "ausente" estava errada) |
 | **CP3: HMI → FastAPI → OPC UA → Ladder → HMI** | prompt §7 CP3 | `tools/cp3_roundtrip.py` | — | — | **PENDENTE** |
 | Credenciais não vazam | prompt §2 | loggers `asyncua` em WARNING; senha só no ambiente | teste de log | `test_opcua_transport.py` | **COMPROVADO** |
-| Reconciliação de fontes e contrato de tags | prompt §1A | `SOURCE_RECONCILIATION.md` (D1–D25), `tags.csv` (97) | revisão | docs | **COMPROVADO (documental)**; `tags.csv` não foi atualizado com as variáveis novas (CAUSA_*, Y_*, PWM_*…) → **PENDENTE** |
+| Reconciliação de fontes e contrato de tags | prompt §1A | `SOURCE_RECONCILIATION.md` (D1–D25), `tags.csv` (97) | revisão | docs | **COMPROVADO (documental)**; `tags.csv` atualizado com as variáveis do programa gerado (status "implementado; online pendente") |
 | Guia de instalação do CODESYS | addendum anterior | `INSTALLATION_COMPLETE.md`, `diagnose-windows.ps1` | diagnóstico executado nesta máquina | docs | **COMPROVADO (diagnóstico)**; sem capturas de tela |
 | Fluxograma, esquema elétrico, pranchas redesenhadas | prompt §12 | não geradas | — | — | **PENDENTE** (existem as referências do grupo) |
 | Apresentação revisada (PPTX) | prompt §12 | não gerada | — | — | **PENDENTE** |
