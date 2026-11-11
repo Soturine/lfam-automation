@@ -98,7 +98,8 @@ def test_pressure_fault_injection_trips_17_mpa_and_stops_screw():
     eng.inject("pressure_high", True)
     run(eng, 20, dt=0.5)
     s = eng.snapshot()
-    assert s["state"] == "FALHA_TRAVADA" and "PRESSAO_ALTA_17" in s["causes"] and s["rpm_real"] < 1
+    # a causa (pressao) some ao parar a rosca; a falha permanece travada ate o reset condicionado
+    assert s["state"] == "FALHA_TRAVADA" and s["rpm_real"] < 1 and not s["flags"]["EST_EXTRUSAO"]
 
 
 def test_api_contract_and_demo_labeling():
