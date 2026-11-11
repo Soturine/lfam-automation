@@ -1,0 +1,59 @@
+# CODESYS: manter *.project versionado, ignorar artefatos de usuário e build
+*.opt
+*.~u
+*.project.precompile
+*.precompilecache
+*.project~
+*.bak
+*.backup
+*.tmp
+*.temp
+*.log
+*.err
+*.cache
+*.project.bak
+*.project.orig
+
+# CODESYS auto-backups e arquivos locais
+*.compiled-library
+*.compileinfo
+*.device
+*.user
+*.suo
+*.userosscache
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+.next/
+
+# Ambientes, credenciais e MCP local
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+.mcp.json
+*.license
+*.lic
+*.ticket
+
+# IDE e sistema
+.vscode/*.log
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
