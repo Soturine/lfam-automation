@@ -27,3 +27,18 @@ Observado: aplicacao `LFAM_POC` em RUN no Control Win local, 0 erros/0 avisos, d
 Resultado do script (leitura 1,5 s apos cada escrita): (F,F)->F ok; (T,F)->F (esperado T); (T,T)->T (esperado F). **CP2 NAO concluido.**
 Hipoteses (nao confirmadas): (A) leitura atrasada um passo; (B) logica invertida. O editor mostra o contato de FALHA_TESTE negado,
 o que favorece A. Script atualizado para ler 8 vezes por combinacao e registrar BT/FALHA/EST; reexecucao pendente.
+
+## Execucao online - tentativa 2: **CP2 CONCLUIDO** (2026-11-11)
+Log bruto: `docs/evidence/CP2_online_run2.log` (sem credenciais). Controle: `LFAM_POC` em RUN no Control Win V3 x64 local,
+logado com o administrador do dispositivo criado pelo usuario; autenticacao nao foi alterada; nenhuma aplicacao apagada.
+Resultados estaveis (8 leituras por combinacao):
+
+| BT_TESTE | FALHA_TESTE | EST_TESTE | Esperado |
+|---|---|---|---|
+| FALSE | FALSE | FALSE | FALSE |
+| TRUE | FALSE | TRUE | TRUE |
+| TRUE | TRUE | FALSE | FALSE |
+
+Conclusao: a rede LD (importada por PLCopen XML) executa corretamente. A tentativa 1 falhou por **leitura atrasada**:
+a 1a leitura apos a escrita ainda traz o valor anterior (visivel no log: 1a amostra = estado antigo, estabiliza em ~0,5 s).
+Licao para os proximos testes: sempre ler apos estabilizar. Ainda nao provado: ida-e-volta HMI->gateway (CP3).
