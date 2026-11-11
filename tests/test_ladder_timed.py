@@ -113,5 +113,6 @@ def test_xml_has_blocks_and_derived_ton_instances():
     root = ET.fromstring(PRG.xml())
     ns = {"p": "http://www.plcopen.org/xml/tc6_0200"}
     types = {b.get("typeName") for b in root.findall(".//p:block", ns)}
-    assert types == {"TON"}  # comparacoes sao contatos com expressao
+    assert types == {"TON", "Util.PID", "CTU", "R_TRIG"}  # comparacoes sao contatos com expressao
     assert len(root.findall(".//p:derived[@name='TON']", ns)) == 6
+    assert len(root.findall(".//p:derived[@name='Util.PID']", ns)) == 6

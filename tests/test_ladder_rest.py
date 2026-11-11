@@ -12,7 +12,7 @@ NORMAL = dict(SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True,
 
 def cycle(env, n=1, dt=0.1):
     for _ in range(n):
-        env = scan(PRG.RUNGS, env, dt)
+        env = scan(PRG.NOPID, env, dt)
     return env
 
 

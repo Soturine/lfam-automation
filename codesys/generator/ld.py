@@ -9,7 +9,9 @@ O mesmo objeto alimenta (1) o XML e (2) evaluate()/scan(), para provar equivalen
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+import re
+from dataclasses import dataclass, field
+from functools import lru_cache
 from itertools import count
 from xml.sax.saxutils import escape
 
@@ -61,6 +63,7 @@ class TonRung:
     inst: str
     pt_s: float
     out: str
+    et: str = ""   # variavel TIME opcional que recebe ET (em ms no avaliador)
 
 
 @dataclass
@@ -79,6 +82,26 @@ class _Zero(dict):
         return 0.0
 
 
+_IEC2PY = [(re.compile(r"\bNOT\b"), "not"), (re.compile(r"\bAND\b"), "and"), (re.compile(r"\bOR\b"), "or"),
+           (re.compile(r"\bTRUE\b"), "True"), (re.compile(r"\bFALSE\b"), "False"), (re.compile("<>"), "!="), (re.compile(r"\bMOD\b"), "%")]
+_IDENT = re.compile(r"^[A-Za-z_][A-Za-z_0-9]*$")
+
+
+@lru_cache(maxsize=None)
+def _compiled(expr: str):
+    py = expr
+    for rx, rep in _IEC2PY:
+        py = rx.sub(rep, py)
+    return compile(py, "<ld-expr>", "eval")
+
+
+def _ev(expr: str, env: dict):
+    """Avalia expressao de AUTORIA PROPRIA do projeto (nunca entrada externa) sem builtins; nomes desconhecidos valem 0."""
+    ns = _Zero(_FUNCS)
+    ns.update({k: v for k, v in env.items() if not k.startswith("__")})
+    return eval(_compiled(expr), {"__builtins__": {}}, ns)  # noqa: S307 - expressoes fixas do gerador
+
+
 def _sel(g, a, b):
     return b if g else a
 
@@ -91,7 +114,78 @@ def _real(x):
     return float(x)
 
 
-_FUNCS = {"SEL": _sel, "LIMIT": _limit, "INT_TO_REAL": _real, "MAX": max, "MIN": min}
+_FUNCS = {"SEL": _sel, "LIMIT": _limit, "INT_TO_REAL": _real, "MAX": max, "MIN": min,
+          "REAL_TO_INT": lambda x: int(round(x)), "TIME_TO_REAL": _real, "NOT": lambda x: not x}
+
+
+@dataclass
+class FbRung:
+    """Chamada de bloco de funcao (PID, CTU, R_TRIG) SEM EN: executa TODO ciclo (PID nunca fica 'congelado').
+    inputs: {pino: expressao}; outputs: {pino: (variavel, tipo)}; inst: nome da instancia (declarada com o tipo do FB)."""
+    title: str
+    fb: str
+    inst: str
+    inputs: dict
+    outputs: dict
+    declare: dict = field(default_factory=dict)   # variaveis so lidas nas expressoes de entrada: {nome: tipo}
+
+
+class _PidModel:
+    """Modelo de referencia do Util.PID (Y = KP*(e + 1/TN*int(e) + TV*de/dt) + Y_OFFSET, limitado a Y_MIN..Y_MAX,
+    com a integral ADAPTADA quando limitado). Equivalencia com o runtime CODESYS so e confirmada online."""
+
+    def __init__(self):
+        self.i = 0.0
+        self.e_old = None
+
+    def step(self, dt, a):
+        if a["RESET"]:
+            self.i, self.e_old = 0.0, None
+            return a["Y_OFFSET"], False
+        if a["MANUAL"]:
+            return a["Y_MANUAL"], False
+        e = a["SET_POINT"] - a["ACTUAL"]
+        d = 0.0 if self.e_old is None or dt <= 0 else (e - self.e_old) / dt
+        self.e_old = e
+        ti = self.i + (e * dt / a["TN"] if a["TN"] > 0 else 0.0)
+        y = a["KP"] * (e + ti + a["TV"] * d) + a["Y_OFFSET"]
+        lim = y > a["Y_MAX"] or y < a["Y_MIN"]
+        if lim and a["Y_MAX"] > a["Y_MIN"]:
+            y = max(a["Y_MIN"], min(a["Y_MAX"], y))   # anti-windup: integral nao acumula enquanto limitado
+        else:
+            self.i = ti
+        return y, lim
+
+
+def _eval_fb(r, env, dt):
+    key = "__fb_" + r.inst
+    a = {}
+    for pin, ex in r.inputs.items():
+        a[pin] = _ev(ex, env)
+    if r.fb == "PID":
+        m = env.setdefault(key, _PidModel())
+        y, lim = m.step(dt, {"RESET": False, "MANUAL": False, "Y_MANUAL": 0.0, "Y_OFFSET": 0.0, "Y_MIN": 0.0, "Y_MAX": 100.0, "TV": 0.0, **a})
+        out = {"Y": y, "LIMITS_ACTIVE": lim, "OVERFLOW": False}
+    elif r.fb == "R_TRIG":
+        old = env.get(key, False)
+        out = {"Q": bool(a["CLK"]) and not old}
+        env[key] = bool(a["CLK"])
+    elif r.fb == "CTU":
+        st = env.setdefault(key, {"cv": 0, "old": False})
+        if a.get("RESET"):
+            st["cv"] = 0
+        elif a["CU"] and not st["old"] and st["cv"] < int(a["PV"]):
+            st["cv"] += 1
+        st["old"] = bool(a["CU"])
+        out = {"Q": st["cv"] >= int(a["PV"]), "CV": st["cv"]}
+    else:
+        raise ValueError(r.fb)
+    for pin, (var, _t) in r.outputs.items():
+        env[var] = out[pin]
+
+
+FB_TYPES = {"TON", "PID", "CTU", "R_TRIG"}
+FB_QUALIFIED = {"PID": "Util.PID"}   # tipos de biblioteca que exigem namespace no PLCopen XML
 
 
 _OPS = {"GT": lambda x, y: x > y, "GE": lambda x, y: x >= y, "LT": lambda x, y: x < y,
@@ -102,7 +196,7 @@ def _num(env, tok):
     try:
         return float(tok)
     except ValueError:
-        return float(env.get(tok, 0.0))
+        return float(_ev(tok, env))
 
 
 def Coil(v): return Out(v, "coil")
@@ -129,8 +223,11 @@ def scan(rungs, env: dict, dt: float = 0.0) -> dict:
         if isinstance(r, CmpRung):
             env[r.out] = _OPS[r.op](_num(env, r.a), _num(env, r.b))
             continue
+        if isinstance(r, FbRung):
+            _eval_fb(r, env, dt)
+            continue
         if isinstance(r, AssignRung):
-            env[r.target] = eval(r.expr, {"__builtins__": {}}, _Zero({**_FUNCS, **{k: v for k, v in env.items() if not k.startswith("__")}}))
+            env[r.target] = _ev(r.expr, env)
             continue
         if isinstance(r, TonRung):
             key = "__ton_" + r.inst
@@ -139,6 +236,8 @@ def scan(rungs, env: dict, dt: float = 0.0) -> dict:
             else:
                 env[key] = 0.0
             env[r.out] = env[key] >= r.pt_s
+            if r.et:
+                env[r.et] = min(env[key], r.pt_s) * 1000.0
             continue
         p = evaluate(r.power, env)
         for o in r.outs:
@@ -165,11 +264,15 @@ def variables_of(rungs) -> dict:
     for r in rungs:
         if isinstance(r, CmpRung):
             for t in (r.a, r.b):
-                try:
-                    float(t)
-                except ValueError:
+                if _IDENT.match(t):
                     names.setdefault(t, "REAL")
             names[r.out] = "BOOL"
+        elif isinstance(r, FbRung):
+            names[r.inst] = r.fb
+            for n, t in r.declare.items():
+                names.setdefault(n, t)
+            for _pin, (var, t) in r.outputs.items():
+                names[var] = t
         elif isinstance(r, AssignRung):
             for n, t in r.types.items():
                 names.setdefault(n, t)
@@ -177,6 +280,8 @@ def variables_of(rungs) -> dict:
             walk(r.power)
             names[r.inst] = "TON"
             names[r.out] = "BOOL"
+            if r.et:
+                names[r.et] = "TIME"
         else:
             walk(r.power)
             for o in r.outs:
@@ -260,6 +365,28 @@ def assign_xml(r: AssignRung, ids, left_rail: int) -> str:
     )
 
 
+def fb_xml(r: FbRung, ids, left_rail: int) -> str:
+    """Bloco de funcao no estilo validado no importador do CODESYS 3.5.22.40:
+    entradas = elementos inVariable ligados aos pinos (a forma 'expression dentro do pino' gera BOOL->REAL fantasma);
+    saidas = destino em connectionPointOut/expression (a forma outVariable mapeia saidas fora de ordem)."""
+    parts = []
+    pins = []
+    for pin, ex in r.inputs.items():
+        i = next(ids)
+        parts.append('<inVariable localId="%d">%s<connectionPointOut /><expression>%s</expression></inVariable>' % (i, _pos(), escape(ex)))
+        pins.append('<variable formalParameter="%s"><connectionPointIn><connection refLocalId="%d" /></connectionPointIn></variable>' % (pin, i))
+    b = next(ids)
+    outs = "".join(
+        '<variable formalParameter="%s"><connectionPointOut><expression>%s</expression></connectionPointOut></variable>' % (pin, escape(var))
+        for pin, (var, _t) in r.outputs.items()
+    )
+    parts.append(
+        '<block localId="%d" typeName="%s" instanceName="%s">%s<inputVariables>%s</inputVariables><inOutVariables />'
+        "<outputVariables>%s</outputVariables></block>" % (b, FB_QUALIFIED.get(r.fb, r.fb), escape(r.inst), _pos(), "".join(pins), outs)
+    )
+    return "\n".join(parts)
+
+
 def ton_xml(r: TonRung, ids, left_rail: int) -> str:
     parts: list = []
     ends = _emit_expr(r.power, [left_rail], ids, parts)
@@ -270,9 +397,16 @@ def ton_xml(r: TonRung, ids, left_rail: int) -> str:
         '<block localId="%d" typeName="TON" instanceName="%s">%s<inputVariables>'
         '<variable formalParameter="IN"><connectionPointIn>%s</connectionPointIn></variable>'
         '<variable formalParameter="PT"><connectionPointIn><expression>T#%dms</expression></connectionPointIn></variable>'
-        '</inputVariables><inOutVariables /><outputVariables><variable formalParameter="Q"><connectionPointOut /></variable></outputVariables></block>'
-        % (b, escape(r.inst), _pos(), conns, int(round(r.pt_s * 1000)))
+        '</inputVariables><inOutVariables /><outputVariables><variable formalParameter="Q"><connectionPointOut /></variable>%s</outputVariables></block>'
+        % (b, escape(r.inst), _pos(), conns, int(round(r.pt_s * 1000)),
+           '<variable formalParameter="ET"><connectionPointOut /></variable>' if r.et else "")
     )
+    if r.et:
+        e_id = next(ids)
+        parts.append(
+            '<outVariable localId="%d">%s<connectionPointIn><connection refLocalId="%d" formalParameter="ET" /></connectionPointIn>'
+            "<expression>%s</expression></outVariable>" % (e_id, _pos(), b, escape(r.et))
+        )
     parts.append(
         '<coil localId="%d" negated="false" storage="none">%s<connectionPointIn><connection refLocalId="%d" formalParameter="Q" />'
         "</connectionPointIn><connectionPointOut /><variable>%s</variable></coil>" % (o, _pos(), b, escape(r.out))
@@ -293,6 +427,8 @@ def pou_xml(name: str, variables: dict, rungs: list) -> str:
         body.append('<leftPowerRail localId="%d">%s<connectionPointOut formalParameter="none" /></leftPowerRail>' % (left, _pos()))
         if isinstance(r, CmpRung):
             body.append(cmp_xml(r, ids, left))
+        elif isinstance(r, FbRung):
+            body.append(fb_xml(r, ids, left))
         elif isinstance(r, AssignRung):
             body.append(assign_xml(r, ids, left))
         elif isinstance(r, TonRung):
@@ -301,7 +437,7 @@ def pou_xml(name: str, variables: dict, rungs: list) -> str:
             body.append(rung_xml(r, ids, left))
     decl = "".join(
         '<variable name="%s"><type>%s</type></variable>'
-        % (n, '<derived name="TON" />' if t == "TON" else "<%s />" % t)
+        % (n, '<derived name="%s" />' % FB_QUALIFIED.get(t, t) if t in FB_TYPES else "<%s />" % t)
         for n, t in variables.items()
     )
     return (

@@ -75,7 +75,7 @@ def test_setpoint_validation_rejects_out_of_range():
 def test_pid_is_reset_when_disabled_no_windup_and_ssr_zero():
     eng = DemoEngine()
     run(eng, 5)
-    assert eng.integral == [0.0] * 5 and all(d == 0.0 for d in eng.duty)
+    assert all(d == 0.0 for d in eng.duty) and eng.duty_ir == 0.0  # PID agora vive no programa (Util.PID, RESET sem aquecimento)
 
 
 def test_full_extrusion_after_soak_with_accelerated_clock():

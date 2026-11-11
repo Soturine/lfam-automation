@@ -16,8 +16,6 @@ from simulator.lfam_sim import Plant, Inputs, ZONES
 SP_LIMITS = {"Z1": (330, 375), "Z2": (330, 375), "Z3": (330, 375), "Z4": (330, 375), "Z5": (345, 375)}
 RPM_LIMITS = (17.0, 34.0)
 BUTTONS = {"BT_AQUEC", "BT_LIGA", "BT_RESET"}  # pulsos; BT_DESLIGA e tratado como 'parar' (NF)
-PERIOD_S = 2.0
-KP, KI = 0.08, 0.004
 
 
 class DemoEngine:
@@ -28,8 +26,6 @@ class DemoEngine:
         self.sp_z = [340.0, 350.0, 350.0, 360.0, 360.0]
         self.sp_rpm = 25.0
         self.sp_ir = 200.0
-        self.integral = [0.0] * ZONES
-        self.integral_ir = 0.0
         self.duty = [0.0] * ZONES
         self.duty_ir = 0.0
         self.pulses: dict = {}
@@ -128,17 +124,14 @@ class DemoEngine:
                 "VENT_OK": s["VENT_OK"], "K1_CONF": s["K1_CONF"], "SP_RPM_OPERADOR": self.sp_rpm,
                 "BT_AQUEC": "BT_AQUEC" in self.pulses, "BT_LIGA": "BT_LIGA" in self.pulses, "BT_RESET": "BT_RESET" in self.pulses,
             }
-            # PIDs rodam SEMPRE (cada passo); o programa decide se o PWM chega ao SSR (rede 06/13)
-            pv = [self.env.get(f"TT_Z{z}") for z in range(1, 6)]
-            en = bool(self.env.get("EST_AQUEC"))
+            # PID e PWM executam DENTRO do programa (Util.PID no Ladder, todo ciclo); aqui so os setpoints
             for i in range(ZONES):
-                self.duty[i], self.integral[i] = self._pid(self.sp_z[i], pv[i], self.integral[i], en, dt)
-                env_in[f"PWM_Z{i + 1}"] = (self.t % PERIOD_S) < PERIOD_S * self.duty[i]
-            self.duty_ir, self.integral_ir = self._pid(self.sp_ir, self.env.get("TT_SUBSTRATO_C"), self.integral_ir,
-                                                       bool(self.env.get("IR_HAB")), dt, kp=0.01, ki=0.002)
-            env_in["PWM_IR"] = (self.t % PERIOD_S) < PERIOD_S * self.duty_ir
+                env_in[f"SP_Z{i + 1}"] = self.sp_z[i]
+            env_in["SP_IR_C"] = self.sp_ir
 
             self.env = scan(PRG.RUNGS, env_in, dt)
+            self.duty = [self.env.get(f"Y_Z{z}", 0.0) / 100.0 for z in range(1, 6)]
+            self.duty_ir = self.env.get("Y_IR", 0.0) / 100.0
             self._track_latched()
             for k in list(self.pulses):
                 self.pulses[k] -= dt
@@ -162,16 +155,6 @@ class DemoEngine:
                     self.latched.append(c)
         else:
             self.latched = []
-
-    @staticmethod
-    def _pid(sp, pv, integral, enabled, dt, kp=KP, ki=KI):
-        if not enabled or pv is None:
-            return 0.0, 0.0                      # desabilitado/sensor invalido: saida 0 e integral zerada (anti-windup)
-        e = sp - pv
-        u = kp * e + ki * integral
-        if 0.0 < u < 1.0:
-            integral += e * dt                   # integra so se nao saturado
-        return max(0.0, min(1.0, u)), integral
 
     def _plant_inputs(self) -> Inputs:
         e = self.env
