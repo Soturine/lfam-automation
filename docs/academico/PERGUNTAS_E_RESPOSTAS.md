@@ -75,7 +75,7 @@ Duas redes escrevendo a mesma saída fazem a última sobrescrever a anterior (er
 ≥ 16,5 MPa: alarme e referência × 0,9 (piso de 17 rpm); ≥ 17 MPa: falha travada e rosca parada. Unifica três descrições divergentes das fontes. → [SOURCE_RECONCILIATION D5](SOURCE_RECONCILIATION.md)
 
 **3.9 Como funciona o encharque de 15 min?**
-As 5 zonas ≥ 330 °C **continuamente** por 900 s (TON). Se uma cair, o temporizador zera. Medido no CLP: PRONTO em ≈ 907 s nas corridas de teste. → [CP4 cenários](../evidence/CP4_ONLINE_SCENARIOS.txt)
+As 5 zonas ≥ 330 °C **continuamente** por 900 s (TON). Se uma cair, o temporizador zera. Medido no CLP em 4 corridas: PRONTO em 903 a 906 s. → [CP4 cenários](../evidence/CP4_ONLINE_SCENARIOS.txt)
 
 **3.10 Como o Ladder foi criado se o CODESYS não é "desenhado por IA"?**
 Um gerador em Python descreve as redes e produz **PLCopen XML**; o CODESYS importa, compila e executa. O mesmo modelo alimenta os testes e as imagens de [LADDER](../entender/LADDER.md).
@@ -91,13 +91,13 @@ Dois níveis se completam: o avaliador Python testa a lógica rápido e em massa
 Um PID por zona (5) mais um para o infravermelho. A saída (0–100 %) vira **PWM por fase** (20 ciclos de 100 ms) que liga o SSR da resistência. O portão do SSR exige aquecimento ligado, K1 confirmado, zona < 390 °C e termopar íntegro.
 
 **4.2 Os ganhos estão sintonizados?**
-**Não.** KP = 8 %/°C e TN = 20 s (zonas) são **hipotéticos**. Foi verificado que o `Util.PID` real se comporta como o modelo (KP e Ki ajustados 8,00 e 0,399 contra 8 e 0,40; erro médio 1,3–1,6 %). A sintonia real exige ensaio na máquina. → [CP4_PID_COMPARE](../evidence/CP4_PID_COMPARE.txt)
+**Não.** KP = 8 %/°C e TN = 20 s (zonas) são **hipotéticos**. Foi verificado que o `Util.PID` real se comporta como o modelo (KP e Ki ajustados 8,00 e 0,399 contra 8 e 0,40; erro médio 0,4–1,0 %). A sintonia real exige ensaio na máquina. → [CP4_PID_COMPARE](../evidence/CP4_PID_COMPARE.txt)
 
 **4.3 O que é anti-windup e qual o usado?**
 Evita que a integral cresça enquanto a saída está saturada. O `Util.PID` real usa **retrocálculo** (a integral é adaptada para que a saída fique no limite); isso foi **medido** no CLP e o modelo de referência foi corrigido para igualar.
 
 **4.4 Qual o sobressinal?**
-Na **planta simulada**, ≈ 2,5 °C acima do setpoint nos ensaios. Não vale para máquina real (parâmetros hipotéticos).
+Na **planta simulada**, no máximo ≈ 2,8 °C acima do setpoint nos ensaios. Não vale para máquina real (parâmetros hipotéticos).
 
 **4.5 Por que PWM e não saída analógica?**
 O atuador é um **SSR** (liga/desliga). A modulação por largura de pulso aproxima potência contínua; o período de 2 s é pequeno frente à constante térmica das zonas (60 s na simulação).

@@ -80,7 +80,7 @@ powershell -ExecutionPolicy Bypass -File .\tools\start-demo.ps1     # sobe backe
 ## Estrutura
 `codesys/` gerador e XML do Ladder · `backend/` FastAPI e transportes (DEMO/OPC UA) · `scada/web/` interface React · `simulator/` planta · `tools/` scripts (gerar, compilar, ensaiar, gravar mídia) · `tests/` pytest · `docs/` guias e evidências.
 
-Testes: `pytest -q tests` (85) e, em `scada/web`, `npx playwright test` (exige o backend DEMO).
+Testes: `pytest -q tests` (90) e, em `scada/web`, `npx playwright test` (exige o backend DEMO).
 Diagnóstico do ambiente Windows: `.\tools\diagnose-windows.ps1`.
 
 ## Segurança e escopo

@@ -11,7 +11,7 @@ Esta lista mostra **o que existe no repositório**; a **monografia manuscrita** 
 | Sensores, atuadores, motor, inversor, SSR, relés, contatores | Arquitetura v2 (tabela de dispositivos) | Existe (grupo) |
 | Estratégia: PID por zona, IR, histerese, sequenciamento, TON, velocidade e pressão | Monografia; programa em `codesys/generator`; `../entender/LADDER_EXPLICADO.md` | Programa implementado e **compilado**; PID com ganhos hipotéticos |
 | Redes e protocolos (efetivos × propostos) | Arquitetura v2 (PROFINET proposto); `MODO_PLC.md` | **Efetivo:** OPC UA cliente, **testado contra o Control Win** (Basic256Sha256 SignAndEncrypt); **proposto:** PROFINET (não testado, não simulado) |
-| SCADA/HMI com seis telas, interação, histórico e alarmes | `scada/web`, `evidence/scada/*.png` | **Funciona em DEMO**; modo CLP pendente |
+| SCADA/HMI com seis telas, interação, histórico e alarmes | `scada/web`, `evidence/scada/*.png` | **Funciona** em DEMO e em modo CLP (Ladder no Control Win) |
 | Segurança, intertravamentos, análise de falhas | Arquitetura v2 (15 intertravamentos), redes 02/03/04 | Existe; tabela de falhas (efeito/detecção/resposta) é tarefa 12 do grupo |
 | Fluxograma, esquema elétrico | `references/visual/fluxograma_funcional.png`, `Esquema_Eletrico.docx` | Existem (grupo, preliminares). **Pendência:** tensão 220 V mono × trifásico |
 | **Ladder real diretamente ligado ao processo** | `codesys/exports/LFAM_PROGRAM.xml` importado em `LFAM_Automacao.project`-cópia; POC executada | **Atendido pela POC executada no Control Win** (`CP2`). Programa completo compilado **e executado** no Control Win (CP3, `evidence/CP3_ROUNDTRIP_OK.txt`) |
@@ -20,7 +20,7 @@ Esta lista mostra **o que existe no repositório**; a **monografia manuscrita** 
 | Grupo multidisciplinar, participação de todos | Arquitetura v2 (divisão) | Todos devem dominar o projeto inteiro |
 
 ## O que dizer (e o que NÃO dizer) na apresentação
-- Dizer: "Ladder **gráfico** gerado e **executado** no CODESYS Control Win (POC); programa completo **compilado**; SCADA em **modo demonstração** com planta simulada."
+- Dizer: "Ladder **gráfico** gerado, importado, compilado e **executado** no CODESYS Control Win: programa completo (15 redes, 6 PIDs) ensaiado em tempo real, 65 verificações de falhas, reset, encharque e pressão; a **planta** é simulada."
 - Dizer também: "o SCADA em modo PLC lê e comanda o Ladder rodando no Control Win via OPC UA; as entradas ainda vêm da planta simulada".
 - Não dizer: "PID sintonizado" (ganhos hipotéticos), "validado no S7-1200".
 - A emergência é **hardware independente**; a interface web não é parada de emergência.
