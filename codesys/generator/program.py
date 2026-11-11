@@ -1,16 +1,33 @@
-"""Programa LFAM completo (parcial): todas as redes ja implementadas, na ORDEM DE EXECUCAO do ciclo."""
+"""Programa LFAM (parcial): redes implementadas, na ORDEM DE EXECUCAO do ciclo.
+Ainda ausentes: PID real (FB em tarefa propria), rede 14 (CTU) e ir/vir de dados do inversor."""
 from . import networks_logic as L
 from . import networks_timed as T
+from . import networks_rest as R
 from .ld import variables_of, pou_xml
 
-# 02/03/07-flags/08 produzem flags que 04/05/10/11 consomem: ficam antes.
-RUNGS = (
+# CORE: logica de controle que consome sinais ja escalonados (TT_Zn em degC, PT em MPa)
+CORE = (
     T.NET02 + T.NET03 + T.NET07_FLAGS
+    + R.NET12[:2]
     + [L.NET04_M_CAUSA, L.NET04_SET, L.NET04_RESET, L.NET05_AQUEC, L.NET05_K1, L.NET07_RESF]
     + T.NET08
+    + R.NET09
     + [L.NET10_ROSCA]
     + T.NET11
+    + R.NET12[2:]
+    + R.NET06
+    + R.NET13
+    + R.NET15
 )
+
+# Escalonamento dos sinais brutos; produz TT_Zn/PT/TT_SUBSTRATO e TC_Zn_ABERTO antes do CORE.
+SCALING = R.NET01
+# TC_Zn_OK = NOT TC_Zn_ABERTO (qualidade), derivado logo apos o escalonamento
+from .ld import Rung, C, Coil  # noqa: E402
+
+TC_OK = [Rung(f"NETWORK 02 - TC_Z{z}_OK = nao aberto", C(f"TC_Z{z}_ABERTO", neg=True), [Coil(f"TC_Z{z}_OK")]) for z in range(1, 6)]
+
+RUNGS = SCALING + TC_OK + CORE
 
 
 def variables() -> dict:

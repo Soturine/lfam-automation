@@ -63,6 +63,37 @@ class TonRung:
     out: str
 
 
+@dataclass
+class AssignRung:
+    """Atribuicao grafica do LD: target := expr (incondicional). reals/ints declaram tipos dos nomes usados."""
+    title: str
+    target: str
+    expr: str
+    types: dict  # {nome: 'REAL'|'INT'|'BOOL'} de todos os nomes envolvidos (alvo e operandos)
+
+
+class _Zero(dict):
+    """Namespace do avaliador: variavel nao inicializada vale 0 (como no CLP apos a carga)."""
+
+    def __missing__(self, key):
+        return 0.0
+
+
+def _sel(g, a, b):
+    return b if g else a
+
+
+def _limit(lo, x, hi):
+    return max(lo, min(hi, x))
+
+
+def _real(x):
+    return float(x)
+
+
+_FUNCS = {"SEL": _sel, "LIMIT": _limit, "INT_TO_REAL": _real, "MAX": max, "MIN": min}
+
+
 _OPS = {"GT": lambda x, y: x > y, "GE": lambda x, y: x >= y, "LT": lambda x, y: x < y,
         "LE": lambda x, y: x <= y, "EQ": lambda x, y: x == y, "NE": lambda x, y: x != y}
 
@@ -97,6 +128,9 @@ def scan(rungs, env: dict, dt: float = 0.0) -> dict:
     for r in rungs:
         if isinstance(r, CmpRung):
             env[r.out] = _OPS[r.op](_num(env, r.a), _num(env, r.b))
+            continue
+        if isinstance(r, AssignRung):
+            env[r.target] = eval(r.expr, {"__builtins__": {}}, _Zero({**_FUNCS, **{k: v for k, v in env.items() if not k.startswith("__")}}))
             continue
         if isinstance(r, TonRung):
             key = "__ton_" + r.inst
@@ -136,6 +170,9 @@ def variables_of(rungs) -> dict:
                 except ValueError:
                     names.setdefault(t, "REAL")
             names[r.out] = "BOOL"
+        elif isinstance(r, AssignRung):
+            for n, t in r.types.items():
+                names.setdefault(n, t)
         elif isinstance(r, TonRung):
             walk(r.power)
             names[r.inst] = "TON"
@@ -213,6 +250,16 @@ def cmp_xml(r: CmpRung, ids, left_rail: int) -> str:
     )
 
 
+def assign_xml(r: AssignRung, ids, left_rail: int) -> str:
+    a = next(ids)
+    b = next(ids)
+    return (
+        '<inVariable localId="%d">%s<connectionPointOut /><expression>%s</expression></inVariable>'
+        '<outVariable localId="%d">%s<connectionPointIn><connection refLocalId="%d" /></connectionPointIn><expression>%s</expression></outVariable>'
+        % (a, _pos(), escape(r.expr), b, _pos(), a, escape(r.target))
+    )
+
+
 def ton_xml(r: TonRung, ids, left_rail: int) -> str:
     parts: list = []
     ends = _emit_expr(r.power, [left_rail], ids, parts)
@@ -246,6 +293,8 @@ def pou_xml(name: str, variables: dict, rungs: list) -> str:
         body.append('<leftPowerRail localId="%d">%s<connectionPointOut formalParameter="none" /></leftPowerRail>' % (left, _pos()))
         if isinstance(r, CmpRung):
             body.append(cmp_xml(r, ids, left))
+        elif isinstance(r, AssignRung):
+            body.append(assign_xml(r, ids, left))
         elif isinstance(r, TonRung):
             body.append(ton_xml(r, ids, left))
         else:

@@ -4,15 +4,15 @@ import xml.etree.ElementTree as ET
 from codesys.generator import program as PRG
 from codesys.generator.ld import scan
 
-NORMAL = dict(SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True, FUNIL_BAIXO=True, VENT_OK=True,
+NORMAL = dict(SECADOR_OK=True, INV_PRONTO=True, SEG_OK=True, MOT_SOBRETEMP=True, DISJ_AQUEC=True, BT_DESLIGA=True, FUNIL_BAIXO=True, VENT_OK=True,
               **{f"TC_Z{z}_OK": True for z in range(1, 6)}, **{f"TT_Z{z}": 350.0 for z in range(1, 6)}, TT_RESF=40.0)
 
 
 def run(env, secs=0.0, dt=0.5):
-    env = scan(PRG.RUNGS, env, 0.0)
+    env = scan(PRG.CORE, env, 0.0)
     t = 0.0
     while t < secs:
-        env = scan(PRG.RUNGS, env, dt)
+        env = scan(PRG.CORE, env, dt)
         t += dt
     return env
 
@@ -52,7 +52,7 @@ def test_hysteresis_flags_and_latch_via_networks():
 
 
 def test_no_material_fault_after_60s_only_when_extruding_and_loader_on():
-    base = {**NORMAL, "EST_PRONTO": True, "BT_LIGA": True, "FUNIL_BAIXO": False, "ALIM_FUNIL": True}
+    base = {**NORMAL, "__ton_T_ENCHARQUE": 900.0, "BT_LIGA": True, "FUNIL_BAIXO": False, "ALIM_FUNIL": True}
     env = run(base, 59.0)
     assert not env["FALHA_SEM_MAT"]
     env = run(env, 2.0)
@@ -82,7 +82,7 @@ def test_soak_15_minutes_continuous_and_restarts_if_a_zone_drops():
 
 
 def test_ventilation_runs_with_screw_and_five_minutes_after_stop():
-    base = {**NORMAL, "EST_PRONTO": True, "BT_LIGA": True}
+    base = {**NORMAL, "__ton_T_ENCHARQUE": 900.0, "BT_LIGA": True}
     env = run(base, 1.0)
     assert env["EST_EXTRUSAO"] and env["VENT_MOTOR"]
     env = run({**env, "BT_LIGA": False, "BT_DESLIGA": False}, 1.0)   # STOP (NF aberto)
@@ -94,7 +94,7 @@ def test_ventilation_runs_with_screw_and_five_minutes_after_stop():
 
 
 def test_restart_during_post_ventilation_keeps_fan_on():
-    env = run({**NORMAL, "EST_PRONTO": True, "BT_LIGA": True}, 1.0)
+    env = run({**NORMAL, "__ton_T_ENCHARQUE": 900.0, "BT_LIGA": True}, 1.0)
     env = run({**env, "BT_LIGA": False, "BT_DESLIGA": False}, 100.0)
     env = run({**env, "BT_DESLIGA": True, "BT_LIGA": True}, 400.0)
     assert env["EST_EXTRUSAO"] and env["VENT_MOTOR"]
