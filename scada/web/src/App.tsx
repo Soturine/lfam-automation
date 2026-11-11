@@ -58,7 +58,7 @@ export default function App() {
           </button>
         ))}
       </nav>
-      <main role="tabpanel" aria-label={TABS[idx].label}>
+      <main key={tab} className="enter" role="tabpanel" aria-label={TABS[idx].label}>
         {tab === "overview" && <Overview live={live} phase={phase} msg={msg} send={send} />}
         {tab === "temps" && <Temps live={live} />}
         {tab === "dep" && <Deposition live={live} />}

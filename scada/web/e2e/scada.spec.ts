@@ -46,6 +46,7 @@ test("seis telas, comando confirmado pelo controlador, falha e sem comunicação
   await page.waitForTimeout(8_000);
 
   // um estado pendente (botao aguardando) para captura
+  await page.waitForTimeout(750); // espera a animacao de entrada terminar
   await page.screenshot({ path: path.join(OUT, "estado_nominal_1920x1080_visao_geral.png") });
 
   // seis telas em quatro tamanhos
@@ -56,6 +57,7 @@ test("seis telas, comando confirmado pelo controlador, falha e sem comunicação
       await expect(page.getByRole("tabpanel")).toBeVisible();
       await noHorizontalScroll(page);
       await page.waitForTimeout(250);
+      await page.waitForTimeout(750); // espera a animacao de entrada terminar
       await page.screenshot({ path: path.join(OUT, `tela${i + 1}_${size.name}.png`), fullPage: size.width < 1100 });
     }
   }
@@ -70,6 +72,7 @@ test("seis telas, comando confirmado pelo controlador, falha e sem comunicação
   await expect(page.locator(".state")).toHaveText("Falha travada", { timeout: 20_000 });
   await page.getByRole("tab", { name: "Alarmes" }).click();
   await expect(page.locator(".tag.bad", { hasText: "FALHA TRAVADA" })).toBeVisible();
+  await page.waitForTimeout(750); // espera a animacao de entrada terminar
   await page.screenshot({ path: path.join(OUT, "estado_alarme_1440x900_alarmes.png") });
   await api(page, "/api/demo/fault", { fault: "pressure_high", on: false });
 
@@ -103,5 +106,6 @@ test("sem comunicacao: dados param e a interface nao mostra verde falso", async 
   await expect(page.getByRole("alert").first()).toContainText("Sem comunicação");
   await expect(page.getByRole("button", { name: "Ligar aquecimento" })).toBeDisabled();
   await expect(page.locator(".pills.stale")).toBeVisible(); // sem verde falso
+  await page.waitForTimeout(750); // espera a animacao de entrada terminar
   await page.screenshot({ path: path.join(OUT, "estado_sem_comunicacao_1440x900_visao_geral.png") });
 });

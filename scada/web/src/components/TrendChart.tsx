@@ -10,13 +10,15 @@ interface Props {
   series: "temps" | "pressure";
   height?: number;
   gapAfterMs?: number;
+  /** largura logica do SVG: paineis largos usam valor maior para manter a tipografia proporcional */
+  width?: number;
 }
 
 /** Tendência SVG com dados reais do stream. Sem dados => estado vazio explicativo (nunca curva fabricada). */
-export function TrendChart({ data: all, series, height = 320 }: Props) {
+export function TrendChart({ data: all, series, height = 320, width = 900 }: Props) {
   const data = all.slice(-WINDOW);
   const [hover, setHover] = useState<number | null>(null);
-  const W = 900, H = height, L = 52, R = 12, T = 12, B = 26;
+  const W = width, H = height, L = 52, R = 12, T = 12, B = 26;
   if (data.length < 2) return <div className="empty" role="status">Aguardando amostras do controlador…</div>;
   const t0 = data[0].t, t1 = data[data.length - 1].t;
   const vals = (s: Sample, i: number) => (series === "temps" ? s.z[i] : s.p);
