@@ -2,7 +2,7 @@
 
 Projeto acadêmico de automação de uma extrusora LFAM (Large Format Additive Manufacturing), com programação IEC 61131-3 em Ladder, CLP virtual CODESYS, proposta de supervisório web e modelo didático do processo.
 
-> **Estado atual:** `LFAM_Automacao.project` está versionado na raiz; suas 15 redes Ladder **ainda não** estão implementadas. Já existem: POC de uma rede LD importada por PLCopen XML e compilada (execução online pendente), simulador físico didático com testes, contrato de tags e reconciliação das fontes. SCADA e backend ainda não foram construídos. Ver `docs/evidence/`.
+> **Estado atual (novembro de 2026):** POC de 1 rede Ladder **executada e confirmada** no Control Win (CP2). 35 redes (70 elementos) geradas por script, **compiladas sem erro**, ainda **sem execução online** no runtime (só a POC); rede 14 (CTU) e PID real pendentes. Simulador físico, backend FastAPI e SCADA React de 6 telas funcionam em **modo DEMO** com testes (pytest + Playwright). **Modo CLP não implementado**: o runtime desta instalação não tem servidor OPC UA (ver `docs/evidence/CP3_TRANSPORT_ANALYSIS.md`).
 
 ## Projeto existente
 
@@ -29,6 +29,7 @@ O estudo original menciona Siemens S7-1200 CPU 1214C DC/DC/DC. **CODESYS Control
 - [MCP do CODESYS: configuração e diagnóstico](docs/MCP_TROUBLESHOOTING.md)
 - [Arquitetura e responsabilidades](docs/ARCHITECTURE.md)
 - [Plano de entrega, redes e telas](docs/DELIVERY_PLAN.md)
+- [Executar o SCADA (DEMO)](docs/SCADA_RUN.md) · [Inventário das redes](docs/evidence/CP4_NETWORKS_STATUS.md) · [Reconciliação das fontes](docs/SOURCE_RECONCILIATION.md)
 - [Instruções para Claude Code](docs/CLAUDE_HANDOFF.md)
 
 Diagnóstico local (descobre o ambiente sozinho), no PowerShell aberto na raiz:
