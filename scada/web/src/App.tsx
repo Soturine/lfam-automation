@@ -8,6 +8,7 @@ import { Alarms } from "./screens/Alarms";
 import { Recipes } from "./screens/Recipes";
 import { History } from "./screens/History";
 import { STATE_LABEL } from "./format";
+import { SpeedControl } from "./components/SpeedControl";
 
 const TABS = [
   { id: "overview", label: "Visão geral" },
@@ -46,6 +47,7 @@ export default function App() {
           <span className={`link ${tone}`}>{status}</span>
           {snap && <span className="meta">último dado há {age}{stale ? "" : ` · t sim. ${snap.t_sim_s.toFixed(0)} s`}</span>}
           {snap?.mode === "DEMO" && <span className="badge-demo">DEMO / SIMULADO</span>}
+          {snap && <SpeedControl mode={snap.mode} scale={snap.time_scale ?? 1} onLog={log} />}
           {snap?.mode === "PLC" && <span className="badge-demo">LÓGICA NO CLP · PLANTA SIMULADA</span>}
           {snap && <span className={`state ${snap.state === "FALHA_TRAVADA" ? "bad" : ""}`}>{stale ? "estado desatualizado" : STATE_LABEL[snap.state]}</span>}
         </div>

@@ -142,3 +142,59 @@ def test_stop_is_a_one_second_pulse_and_does_not_latch_the_stop_button():
     assert eng.snapshot()["state"] == "PRONTO", "parou"
     eng.request("BT_LIGA"); run(eng, 3, dt=0.5)
     assert eng.snapshot()["state"] == "EXTRUSAO", "STOP nao pode ficar preso e bloquear nova partida"
+
+
+# ---------------------------------------------------------------- modo apresentacao (velocidade do relogio simulado)
+def test_step_size_keeps_original_up_to_30x_and_grows_above():
+    from backend.app import step_dt
+    assert step_dt(1) == 0.1 and abs(step_dt(30) - 0.1) < 1e-9
+    assert abs(step_dt(90) - 0.3) < 1e-9 and abs(step_dt(150) - 0.5) < 1e-9
+
+
+def test_clock_accumulator_advances_exactly_scale_times_wall_time_without_drift():
+    from backend.app import advance
+    for scale in (1, 5, 30, 90, 150):
+        debt, sim = 0.0, 0.0
+        for _ in range(500):                      # 500 iteracoes de 20 ms reais = 10 s reais
+            n, dt, debt = advance(debt, 0.02, scale)
+            sim += n * dt
+        assert abs((sim + debt) - scale * 10.0) < 1e-6, scale     # nada se perde
+        assert abs(sim - scale * 10.0) <= step_dt_of(scale), scale  # sobra no maximo um passo
+
+
+def step_dt_of(scale):
+    from backend.app import step_dt
+    return step_dt(scale) + 1e-9
+
+
+def test_clock_accumulator_drops_backlog_when_machine_is_too_slow():
+    from backend.app import advance, MAX_STEPS_PER_TICK
+    n, dt, debt = advance(0.0, 0.5, 150)       # 75 s simulados devidos de uma vez: >> 30 passos de 0,5 s
+    assert n == MAX_STEPS_PER_TICK and debt <= dt
+
+
+def test_speed_endpoint_demo_accepts_in_range_and_rejects_outside():
+    with TestClient(create_app(DemoEngine(), autostart=False)) as c:
+        assert c.get("/api/state").json()["time_scale"] == 1.0
+        r = c.post("/api/demo/speed", json={"scale": 90}).json()
+        assert r["accepted"] and r["time_scale"] == 90.0 and c.get("/api/state").json()["time_scale"] == 90.0
+        assert not c.post("/api/demo/speed", json={"scale": 0.5}).json()["accepted"]
+        assert not c.post("/api/demo/speed", json={"scale": 1000}).json()["accepted"]
+        assert c.get("/api/state").json()["time_scale"] == 90.0, "valor recusado nao altera a velocidade"
+
+
+def test_presentation_speed_does_not_change_the_process_outcome():
+    """Mesma partida em 1x (passos de 0,1 s) e com passos de 0,3 s: PRONTO e extrusao chegam ao mesmo estado fisico aproximado."""
+    def go(dt):
+        eng = DemoEngine()
+        eng.request("BT_AQUEC")
+        t = 0.0
+        while t < 1200 and eng.snapshot()["state"] != "PRONTO":
+            eng.step(dt)
+            t += dt
+        return eng, t
+    e1, t1 = go(0.1)
+    e3, t3 = go(0.3)
+    assert e1.snapshot()["state"] == "PRONTO" == e3.snapshot()["state"]
+    assert abs(t1 - t3) < 15, (t1, t3)      # encharque de 900 s: diferenca de poucos segundos
+    assert all(abs(e1.snapshot()["temps"][z] - e3.snapshot()["temps"][z]) < 5 for z in ("Z1", "Z2", "Z3", "Z4", "Z5"))

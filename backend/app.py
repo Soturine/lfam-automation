@@ -5,6 +5,7 @@ Nao ha rota que acione motor/SSR diretamente."""
 from __future__ import annotations
 
 import asyncio
+import math
 import time
 import contextlib
 import os
@@ -25,6 +26,10 @@ class Command(BaseModel):
 class Setpoint(BaseModel):
     key: str
     value: float
+
+
+class Speed(BaseModel):
+    scale: float
 
 
 class Fault(BaseModel):
@@ -51,13 +56,36 @@ def build_engine() -> DemoEngine:
     return DemoEngine(transport=DemoTransport())
 
 
+SPEED_MIN, SPEED_MAX, MAX_STEPS_PER_TICK = 1.0, 150.0, 30
+
+
+def step_dt(scale: float) -> float:
+    """Tamanho do passo de simulacao (s simulados). Ate 30x: 0,1 s (identico ao comportamento original); acima, passos maiores
+    (0,3 s a 90x, 0,5 s a 150x): a constante termica das zonas e de 60 s e os TON integram dt, entao fisica e logica nao mudam."""
+    return min(0.5, max(0.1, scale * TICK_S / MAX_STEPS_PER_TICK))
+
+
+def advance(debt: float, wall: float, scale: float) -> tuple:
+    """Relogio com acumulador: `wall` segundos reais viram `scale*wall` segundos simulados DEVIDOS; devolve (passos, dt, divida restante).
+    Nenhum tempo e perdido nem sobra (sem deriva); se o computador nao acompanha, o excesso e descartado (velocidade efetiva cai)."""
+    dt = step_dt(scale)
+    debt += scale * wall
+    n = int(debt // dt)
+    if n > MAX_STEPS_PER_TICK:
+        n, debt = MAX_STEPS_PER_TICK, dt          # atrasado: descarta o excesso
+    else:
+        debt -= n * dt
+    return n, dt, debt
+
+
 def create_app(engine: DemoEngine | None = None, autostart: bool = True) -> FastAPI:
     eng = engine or build_engine()
     plc = eng.transport.mode == "PLC"
-    speed = 1.0 if plc else float(os.environ.get("LFAM_TIME_SCALE", "1"))   # PLC roda em tempo real (o CLP tem o proprio ciclo)
+    eng.time_scale = 1.0 if plc else min(SPEED_MAX, max(SPEED_MIN, float(os.environ.get("LFAM_TIME_SCALE", "1"))))   # PLC: tempo real (o CLP tem o proprio ciclo)
 
     async def loop():
         last = time.monotonic()
+        debt = 0.0
         while True:
             if plc and not eng.transport.connected:
                 try:
@@ -76,9 +104,12 @@ def create_app(engine: DemoEngine | None = None, autostart: bool = True) -> Fast
                 last = now
                 await asyncio.to_thread(eng.step, dt)
             else:
-                for _ in range(max(1, int(round(speed)))):
-                    eng.step(TICK_S)
-            await asyncio.sleep(TICK_S if not plc else 0.05)   # PLC: no maximo ~20 leituras/s (o ciclo do CLP e 100 ms)
+                now = time.monotonic()
+                n, dt, debt = advance(debt, min(now - last, 0.5), eng.time_scale)
+                last = now
+                for _ in range(n):
+                    eng.step(dt)
+            await asyncio.sleep(0.02 if not plc else 0.05)   # PLC: no maximo ~20 leituras/s (o ciclo do CLP e 100 ms)
 
     @contextlib.asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -119,6 +150,17 @@ def create_app(engine: DemoEngine | None = None, autostart: bool = True) -> Fast
     def fault(f: Fault):
         ok, msg = eng.inject(f.fault, f.on)
         return {"accepted": ok, "message": msg, "mode": eng.transport.mode, "target": "planta simulada"}
+
+    @app.post("/api/demo/speed")
+    def speed(sp: Speed):
+        """Velocidade do relogio SIMULADO (modo apresentacao). So no DEMO: no modo PLC os temporizadores sao os do CLP, em tempo real."""
+        if plc:
+            return {"accepted": False, "message": "modo CLP roda em tempo real (os temporizadores sao os do Ladder)", "time_scale": 1.0}
+        if not SPEED_MIN <= sp.scale <= SPEED_MAX:
+            return {"accepted": False, "message": f"velocidade fora da faixa {SPEED_MIN:g}-{SPEED_MAX:g}x", "time_scale": eng.time_scale}
+        eng.time_scale = float(sp.scale)
+        eng._log(f"velocidade da simulacao {sp.scale:g}x")
+        return {"accepted": True, "message": "ok", "time_scale": eng.time_scale}
 
     @app.post("/api/demo/robot")
     def robot(r: RobotState):

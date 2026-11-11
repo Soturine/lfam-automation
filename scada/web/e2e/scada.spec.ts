@@ -31,6 +31,11 @@ test("seis telas, comando confirmado pelo controlador, falha e sem comunicação
   await expect(page.locator(".link")).toHaveText("DEMO", { timeout: 15_000 });
   await expect(page.getByText("DEMO / SIMULADO").first()).toBeVisible();
 
+  // modo apresentacao: selecionavel no site (so DEMO); o relogio simulado passa a 90x
+  await page.getByRole("button", { name: /Apresentação/ }).click();
+  await expect(page.getByRole("button", { name: /Apresentação/ })).toHaveAttribute("aria-pressed", "true");
+  expect((await (await page.request.get("/api/state")).json()).time_scale).toBe(90);
+
   // estado inicial: desligado, K1 aberto; botao de extrusao desabilitado (programa nao esta PRONTO)
   await expect(page.getByRole("button", { name: "Iniciar extrusão" })).toBeDisabled();
 
@@ -39,8 +44,8 @@ test("seis telas, comando confirmado pelo controlador, falha e sem comunicação
   await expect(page.getByRole("button", { name: /Aguardando CLP|Confirmado/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "✓ Confirmado" })).toBeVisible({ timeout: 10_000 });
 
-  // acelera ate PRONTO (encharque de 15 min em tempo simulado, fator 30x)
-  await expect(page.locator(".state")).toHaveText("Pronto", { timeout: 150_000 });
+  // modo apresentacao: encharque de 15 min simulados em poucos segundos reais
+  await expect(page.locator(".state")).toHaveText("Pronto", { timeout: 60_000 });
   await page.getByRole("button", { name: "Iniciar extrusão" }).click();
   await expect(page.locator(".state")).toHaveText("Extrusão", { timeout: 15_000 });
   await page.waitForTimeout(8_000);

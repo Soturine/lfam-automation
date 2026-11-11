@@ -1,5 +1,5 @@
 """Redes puramente booleanas do LFAM: 04, 05, 07 e 10.
-Reset de falha: so com M_CAUSA = FALSE (decisao D3 em docs/SOURCE_RECONCILIATION.md)."""
+Reset de falha: so com M_CAUSA = FALSE (decisao D3 em docs/academico/SOURCE_RECONCILIATION.md)."""
 from .ld import C, S, P, Rung, Coil, Set, Reset, variables_of
 
 # Causas criticas, com polaridade corrigida (SEG_OK e MOT_SOBRETEMP sao ativos-baixos).

@@ -30,6 +30,7 @@ class DemoEngine:
         self.duty = [0.0] * ZONES
         self.duty_ir = 0.0
         self.pulses: dict = {}
+        self.time_scale = 1.0         # velocidade do relogio simulado (so DEMO; modo apresentacao)
         self.estop_test = False       # emergencia LOGICA de teste (nao substitui a fisica)
         self.disj_open = False        # disjuntor do aquecimento aberto (DEMO/ensaio)
         self.robo_mov = False
@@ -195,7 +196,7 @@ class DemoEngine:
                 "mode": self.transport.mode, "link_error": self.link_error,
                 "source": ("simulacao (programa Ladder gerado em avaliador Python; NAO e o CLP)" if self.transport.mode == "DEMO"
                            else "valores lidos do CODESYS Control Win via OPC UA (ponte de desenvolvimento)"),
-                "plc_connected": self.transport.mode == "PLC" and self.transport.healthy, "t_sim_s": round(self.t, 2), "timestamp": time.time(), "state": state,
+                "time_scale": self.time_scale, "plc_connected": self.transport.mode == "PLC" and self.transport.healthy, "t_sim_s": round(self.t, 2), "timestamp": time.time(), "state": state,
                 "temps": {f"Z{z}": round(e.get(f"TT_Z{z}", 0.0), 1) for z in range(1, 6)},
                 "setpoints": {f"Z{z}": self.sp_z[z - 1] for z in range(1, 6)} | {"RPM": self.sp_rpm, "IR": self.sp_ir},
                 "ssr_duty": {f"Z{z}": round(self.duty[z - 1], 3) for z in range(1, 6)} | {"IR": round(self.duty_ir, 3)},

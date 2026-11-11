@@ -6,6 +6,7 @@ export interface Snapshot {
   plc_connected: boolean;
   link_error?: string;
   t_sim_s: number;
+  time_scale?: number;
   timestamp: number;
   state: ProcState;
   temps: Record<"Z1" | "Z2" | "Z3" | "Z4" | "Z5", number>;

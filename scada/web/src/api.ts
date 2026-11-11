@@ -13,6 +13,7 @@ export const api = {
   command: (name: string) => post<{ accepted: boolean; message: string }>("/api/command", { name }),
   setpoint: (key: string, value: number) => post<{ accepted: boolean; message: string }>("/api/setpoint", { key, value }),
   fault: (fault: string, on: boolean) => post<{ accepted: boolean; message: string }>("/api/demo/fault", { fault, on }),
+  speed: (scale: number) => post<{ accepted: boolean; message: string; time_scale: number }>("/api/demo/speed", { scale }),
   robot: (r: { moving?: boolean; cmd?: boolean; auto?: boolean }) => post<{ accepted: boolean }>("/api/demo/robot", r),
 };
 
