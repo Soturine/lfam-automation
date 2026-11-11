@@ -1,0 +1,50 @@
+name: Erro
+description: Algo não funciona como o esperado
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: parte
+    attributes:
+      label: Parte do projeto
+      options:
+        - Ladder / gerador
+        - Backend / OPC UA
+        - SCADA (interface)
+        - Planta simulada
+        - Scripts (tools)
+        - Documentação
+        - Outra
+    validations:
+      required: true
+  - type: dropdown
+    id: modo
+    attributes:
+      label: Modo
+      options:
+        - DEMO / SIMULADO
+        - CLP (CODESYS Control Win)
+        - Não se aplica
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que você esperava
+    validations:
+      required: true
+  - type: textarea
+    id: aconteceu
+    attributes:
+      label: O que aconteceu (mensagem exata)
+      description: Em modo CLP, inclua o link_error de /api/health. NÃO cole senhas.
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos para reproduzir
+  - type: input
+    id: ambiente
+    attributes:
+      label: Ambiente
+      placeholder: Windows 11, Python 3.12, Node 20, CODESYS 3.5.22.40

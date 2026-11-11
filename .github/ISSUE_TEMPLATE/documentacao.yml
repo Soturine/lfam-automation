@@ -1,0 +1,20 @@
+name: Documentação
+description: Algo errado, confuso ou faltando nos documentos
+labels: ["documentation"]
+body:
+  - type: input
+    id: onde
+    attributes:
+      label: Qual documento e seção
+    validations:
+      required: true
+  - type: textarea
+    id: problema
+    attributes:
+      label: O que está errado, confuso ou faltando
+    validations:
+      required: true
+  - type: textarea
+    id: sugestao
+    attributes:
+      label: Sugestão de texto (opcional)

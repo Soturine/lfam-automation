@@ -1,0 +1,21 @@
+name: Melhoria
+description: Sugerir uma funcionalidade ou ajuste
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: ideia
+    attributes:
+      label: O que você propõe e por quê
+    validations:
+      required: true
+  - type: textarea
+    id: impacto
+    attributes:
+      label: Impacto na segurança ou no Ladder
+      description: Algo muda quem decide a lógica? A interface continua só solicitando?
+  - type: checkboxes
+    id: pr
+    attributes:
+      label: Colaboração
+      options:
+        - label: Posso abrir um Pull Request para isto

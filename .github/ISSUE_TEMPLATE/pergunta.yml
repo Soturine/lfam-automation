@@ -1,0 +1,14 @@
+name: Pergunta
+description: Dúvida sobre o projeto, a lógica ou como rodar
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Antes de perguntar, veja as [Perguntas e respostas](https://github.com/Soturine/lfam-automation/blob/main/docs/academico/PERGUNTAS_E_RESPOSTAS.md) e o [Início rápido](https://github.com/Soturine/lfam-automation/blob/main/docs/guias/INICIO_RAPIDO.md).
+  - type: textarea
+    id: pergunta
+    attributes:
+      label: Sua pergunta
+    validations:
+      required: true

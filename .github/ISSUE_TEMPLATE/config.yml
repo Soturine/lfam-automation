@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Entender o projeto (leia antes de abrir uma issue)
+    url: https://github.com/Soturine/lfam-automation/blob/main/docs/README.md
+    about: Índice da documentação, início rápido e perguntas e respostas.
+  - name: Vulnerabilidade ou credencial exposta (privado)
+    url: https://github.com/Soturine/lfam-automation/security/advisories/new
+    about: Não abra issue pública para falhas de segurança.
