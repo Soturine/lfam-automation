@@ -1,0 +1,81 @@
+[    0.0s] CP4 cenarios online, tempo real. health={'status': 'ok', 'mode': 'PLC', 'plc_connected': True, 'link_error': ''}
+[    0.0s] ATENCAO: entradas vem da planta SIMULADA do backend; o Ladder e o canal OPC UA sao reais.
+[    0.0s] ===== S1 partida e reset de partida =====
+[    5.8s] PASS  S1: DESLIGADO apos reset de partida  
+[    5.8s] ===== S2 termopar rompido (Z3) durante aquecimento =====
+[   16.5s] PASS  S2: falha travada pelo Ladder (causa TC_FAULT)  em 0.3s; latched=['TC_FAULT']
+[   16.5s] PASS  S2: K1 aberto, rosca parada, sirene  K1=False INV_RUN=False sirene=True
+[   19.5s] PASS  S2: reset RECUSADO com a causa ainda presente  estado=FALHA_TRAVADA
+[   25.1s] PASS  S2: reset ACEITO depois que a causa sumiu  estado=DESLIGADO
+[   25.2s] ===== S3 falha do inversor =====
+[   25.3s] PASS  S3: falha travada pelo Ladder (causa INV_FALHA)  em 0.0s; latched=['INV_FALHA']
+[   25.3s] PASS  S3: K1 aberto, rosca parada, sirene  K1=False INV_RUN=False sirene=True
+[   28.3s] PASS  S3: reset RECUSADO com a causa ainda presente  estado=FALHA_TRAVADA
+[   33.8s] PASS  S3: reset ACEITO depois que a causa sumiu  estado=DESLIGADO
+[   34.0s] ===== S4 contator K1 colado =====
+[   35.3s] PASS  S4: falha travada pelo Ladder (causa FALHA_K1_COL)  em 1.3s; latched=['FALHA_K1_COL']
+[   35.3s] PASS  S4: K1 aberto, rosca parada, sirene  K1=False INV_RUN=False sirene=True
+[   38.4s] PASS  S4: reset RECUSADO com a causa ainda presente  estado=FALHA_TRAVADA
+[   43.9s] PASS  S4: reset ACEITO depois que a causa sumiu  estado=DESLIGADO
+[   44.0s] ===== S5b disjuntor do aquecimento abre =====
+[   44.5s] PASS  S5b: disjuntor aberto desliga o aquecimento sem falha  em 0.3s estado=DESLIGADO
+[   46.6s] PASS  S5b: aquecimento NAO religa sozinho ao fechar o disjuntor  estado=DESLIGADO
+[   46.8s] ===== S5 emergencia logica de teste =====
+[   47.3s] PASS  S5: falha travada pelo Ladder (causa SEG_OK)  em 0.3s; latched=['SEG_OK']
+[   47.3s] PASS  S5: K1 aberto, rosca parada, sirene  K1=False INV_RUN=False sirene=True
+[   50.4s] PASS  S5: reset RECUSADO com a causa ainda presente  estado=FALHA_TRAVADA
+[   55.9s] PASS  S5: reset ACEITO depois que a causa sumiu  estado=DESLIGADO
+[   56.1s] ===== S6 nominal: aquecer, encharque 15 min, PRONTO, EXTRUSAO =====
+[   56.3s] PASS  S6: BT_AQUEC confirmado pelo Ladder (K1_AQUEC)  em 0.3s
+[  126.4s] PASS  S6: zonas chegaram a 330 degC (ENCHARQUE)  em 70s; temps={'Z1': 330.8, 'Z2': 339.7, 'Z3': 339.8, 'Z4': 347.6, 'Z5': 347.4}
+[ 1032.3s] PASS  S6: PRONTO somente apos ~900 s de encharque continuo  905.9s
+[ 1032.3s] PASS  S6: sobressinal dos PIDs (limite de aviso 15 degC)  max sobressinal por zona=[2.6, 2.6, 2.4, 2.6, 2.5]
+[ 1032.6s] PASS  S6: BT_LIGA confirmado pelo Ladder (EXTRUSAO)  em 0.3s
+[ 1039.0s] PASS  S6: INV_RUN, ventilador, referencia 25 rpm  rpm_ref=25.0 real=24.12 pressao=11.3 MPa
+[ 1039.0s] ===== S7 aviso de pressao (16,5-17 MPa) e reducao de referencia =====
+[ 1064.2s] PASS  S7: ALM_PRESSAO_16_5 acionado  
+[ 1064.2s] PASS  S7: referencia reduzida a ~90% (22,5 rpm)  menor REF_RPM_LIM observada=22.5
+[ 1064.2s] PASS  S7: aviso NAO trava falha  estado=EXTRUSAO pressao=16.48
+[ 1067.2s] ===== S8 pressao >= 17 MPa: falha travada =====
+[ 1067.5s] PASS  S8: falha travada pelo Ladder (causa PRESSAO_ALTA_17)  em 0.3s; latched=['PRESSAO_ALTA_17']
+[ 1067.5s] PASS  S8: K1 aberto, rosca parada, sirene  K1=False INV_RUN=False sirene=True
+[ 1067.5s] PASS  S8: pos-ventilacao do motor segue apos a falha  VENT_MOTOR=True
+[ 1072.5s] PASS  S8: falha SEGUE travada depois que a pressao normalizou (ate o reset)  estado=FALHA_TRAVADA M_CAUSA=False pressao=1.61
+[ 1077.6s] PASS  S8: reset RECUSADO com a causa ainda presente  estado=FALHA_TRAVADA
+[ 1083.1s] PASS  S8: reset ACEITO depois que a causa sumiu  estado=DESLIGADO
+[ 1083.3s] ===== S9 ventilador do motor falha por 10 s =====
+[ 1083.7s] PASS  S9: BT_AQUEC confirmado pelo Ladder (K1_AQUEC)  em 0.3s
+[ 1119.7s] PASS  S9: zonas chegaram a 330 degC (ENCHARQUE)  em 36s; temps={'Z1': 330.0, 'Z2': 338.5, 'Z3': 340.1, 'Z4': 349.3, 'Z5': 349.8}
+[ 2024.8s] PASS  S9: PRONTO somente apos ~900 s de encharque continuo  905.1s
+[ 2024.8s] PASS  S9: sobressinal dos PIDs (limite de aviso 15 degC)  max sobressinal por zona=[2.7, 2.8, 2.8, 2.4, 2.6]
+[ 2024.8s] PASS  S10: pos-ventilacao terminou ~300 s apos a rosca parar  VENT_MOTOR apagou 300.1s apos a falha de pressao
+[ 2025.0s] PASS  S9: BT_LIGA confirmado pelo Ladder (EXTRUSAO)  em 0.3s
+[ 2031.4s] PASS  S9: INV_RUN, ventilador, referencia 25 rpm  rpm_ref=25.0 real=24.12 pressao=11.29 MPa
+[ 2041.6s] PASS  S9: falha travada pelo Ladder (causa FALHA_VENT_10S)  em 10.2s; latched=['FALHA_VENT_10S']
+[ 2041.6s] PASS  S9: K1 aberto, rosca parada, sirene  K1=False INV_RUN=False sirene=True
+[ 2046.7s] PASS  S9: falha SEGUE travada depois que a causa sumiu (ate o reset)  estado=FALHA_TRAVADA M_CAUSA=False latched=['FALHA_VENT_10S']
+[ 2049.2s] PASS  S9: reset do operador aceito (causa extinta)  estado=DESLIGADO
+[ 2049.4s] ===== S11 sem material por 60 s =====
+[ 2049.7s] PASS  S11: BT_AQUEC confirmado pelo Ladder (K1_AQUEC)  em 0.3s
+[ 2074.2s] PASS  S11: zonas chegaram a 330 degC (ENCHARQUE)  em 24s; temps={'Z1': 330.7, 'Z2': 339.2, 'Z3': 339.8, 'Z4': 349.3, 'Z5': 349.3}
+[ 2980.5s] PASS  S11: PRONTO somente apos ~900 s de encharque continuo  906.3s
+[ 2980.5s] PASS  S11: sobressinal dos PIDs (limite de aviso 15 degC)  max sobressinal por zona=[2.6, 2.7, 2.8, 2.7, 2.5]
+[ 2980.7s] PASS  S11: BT_LIGA confirmado pelo Ladder (EXTRUSAO)  em 0.3s
+[ 2987.0s] PASS  S11: INV_RUN, ventilador, referencia 25 rpm  rpm_ref=25.0 real=24.07 pressao=11.27 MPa
+[ 3047.6s] PASS  S11: falha travada pelo Ladder (causa FALHA_SEM_MAT)  em 60.6s; latched=['FALHA_SEM_MAT']
+[ 3047.6s] PASS  S11: K1 aberto, rosca parada, sirene  K1=False INV_RUN=False sirene=True
+[ 3047.6s] PASS  S11: falha so apos ~60 s  60.6s
+[ 3052.7s] PASS  S11: falha SEGUE travada depois que a causa sumiu (ate o reset)  estado=FALHA_TRAVADA M_CAUSA=False latched=['FALHA_SEM_MAT']
+[ 3055.3s] PASS  S11: reset do operador aceito (causa extinta)  estado=DESLIGADO
+[ 3055.3s] ===== S12 parada normal e pos-ventilacao de 5 min =====
+[ 3055.7s] PASS  S12: BT_AQUEC confirmado pelo Ladder (K1_AQUEC)  em 0.3s
+[ 3079.7s] PASS  S12: zonas chegaram a 330 degC (ENCHARQUE)  em 24s; temps={'Z1': 330.9, 'Z2': 339.8, 'Z3': 340.4, 'Z4': 349.1, 'Z5': 349.3}
+[ 3982.9s] PASS  S12: PRONTO somente apos ~900 s de encharque continuo  903.3s
+[ 3982.9s] PASS  S12: sobressinal dos PIDs (limite de aviso 15 degC)  max sobressinal por zona=[2.5, 2.7, 2.7, 2.6, 2.6]
+[ 3983.2s] PASS  S12: BT_LIGA confirmado pelo Ladder (EXTRUSAO)  em 0.3s
+[ 3989.5s] PASS  S12: INV_RUN, ventilador, referencia 25 rpm  rpm_ref=25.0 real=24.11 pressao=11.29 MPa
+[ 3989.8s] PASS  S12: STOP parou a rosca e manteve o aquecimento (PRONTO)  estado=PRONTO
+[ 3989.8s] PASS  S12: ventilador segue ligado apos parar  
+[ 4290.4s] PASS  S12: pos-ventilacao de 5 min  300.9s
+[ 4293.3s] trace salvo: 53481 ciclos em work\cp4_trace.json
+[ 4293.4s] RESUMO: 65/65 verificacoes passaram

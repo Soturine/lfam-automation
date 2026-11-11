@@ -1,0 +1,9 @@
+Comparacao Util.PID (runtime) x _PidModel (referencia) - 43602 ciclos, KP=8.0 %/degC, TN=20.0 s
+
+Z1: erro medio=0.98 %  max=100.0 %  | regiao linear: erro medio=0.98 % (41816 ciclos) | saturacao: concordancia 1695/1786
+Z2: erro medio=0.44 %  max=100.0 %  | regiao linear: erro medio=0.43 % (41794 ciclos) | saturacao: concordancia 1719/1808
+Z3: erro medio=0.98 %  max=100.0 %  | regiao linear: erro medio=0.99 % (41788 ciclos) | saturacao: concordancia 1720/1814
+Z4: erro medio=0.61 %  max=100.0 %  | regiao linear: erro medio=0.60 % (41766 ciclos) | saturacao: concordancia 1765/1836
+Z5: erro medio=0.62 %  max=100.0 %  | regiao linear: erro medio=0.61 % (41752 ciclos) | saturacao: concordancia 1769/1850
+
+Criterio: erro medio na regiao linear < 3 % da saida (defasagem de amostragem aceita). Resultado: DENTRO do criterio
