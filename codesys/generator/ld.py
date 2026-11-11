@@ -55,6 +55,7 @@ class CmpRung:
     a: str
     b: str
     out: str
+    gate: str = ""   # contato BOOL opcional em serie com a comparacao (ex.: termopar valido)
 
 
 @dataclass
@@ -254,7 +255,7 @@ def scan(rungs, env: dict, dt: float = 0.0) -> dict:
     env = dict(env)
     for r in rungs:
         if isinstance(r, CmpRung):
-            env[r.out] = _OPS[r.op](_num(env, r.a), _num(env, r.b))
+            env[r.out] = bool(_OPS[r.op](_num(env, r.a), _num(env, r.b)) and (not r.gate or env.get(r.gate, False)))
             continue
         if isinstance(r, FbRung):
             _eval_fb(r, env, dt)
@@ -300,6 +301,8 @@ def variables_of(rungs) -> dict:
                 if _IDENT.match(t):
                     names.setdefault(t, "REAL")
             names[r.out] = "BOOL"
+            if r.gate:
+                names.setdefault(r.gate, "BOOL")
         elif isinstance(r, FbRung):
             names[r.inst] = r.fb
             for n, t in r.declare.items():
@@ -375,17 +378,21 @@ _SYM = {"GT": ">", "GE": ">=", "LT": "<", "LE": "<=", "EQ": "=", "NE": "<>"}
 
 
 def cmp_xml(r: CmpRung, ids, left_rail: int) -> str:
-    """Comparacao como CONTATO com expressao booleana (ex.: TT_Z1 > 390.0) -> bobina.
+    """Comparacao como CONTATO com expressao booleana (ex.: TT_Z1 > 390.0) -> [contato gate] -> bobina.
     (As caixas GT/GE/LT do CODESYS exigem nomes de pino que o PLCopen XML nao documenta; ver docs/evidence.)"""
     c = next(ids)
+    g = next(ids) if r.gate else None
     o = next(ids)
     expr = "%s %s %s" % (r.a, _SYM[r.op], r.b)
-    return (
-        '<contact localId="%d" negated="false" storage="none">%s<connectionPointIn><connection refLocalId="%d" /></connectionPointIn>'
-        "<connectionPointOut /><variable>%s</variable></contact>"
-        '<coil localId="%d" negated="false" storage="none">%s<connectionPointIn><connection refLocalId="%d" /></connectionPointIn>'
-        "<connectionPointOut /><variable>%s</variable></coil>" % (c, _pos(), left_rail, escape(expr), o, _pos(), c, escape(r.out))
-    )
+    xml = ('<contact localId="%d" negated="false" storage="none">%s<connectionPointIn><connection refLocalId="%d" /></connectionPointIn>'
+           "<connectionPointOut /><variable>%s</variable></contact>" % (c, _pos(), left_rail, escape(expr)))
+    prev = c
+    if g:
+        xml += ('<contact localId="%d" negated="false" storage="none">%s<connectionPointIn><connection refLocalId="%d" /></connectionPointIn>'
+                "<connectionPointOut /><variable>%s</variable></contact>" % (g, _pos(), c, escape(r.gate)))
+        prev = g
+    return xml + ('<coil localId="%d" negated="false" storage="none">%s<connectionPointIn><connection refLocalId="%d" /></connectionPointIn>'
+                  "<connectionPointOut /><variable>%s</variable></coil>" % (o, _pos(), prev, escape(r.out)))
 
 
 def assign_xml(r: AssignRung, ids, left_rail: int) -> str:
@@ -423,15 +430,18 @@ def fb_xml(r: FbRung, ids, left_rail: int) -> str:
 def ton_xml(r: TonRung, ids, left_rail: int) -> str:
     parts: list = []
     ends = _emit_expr(r.power, [left_rail], ids, parts)
+    pt = next(ids)   # PT como elemento inVariable ligado ao pino: o literal 'expression' dentro do pino e PERDIDO na importacao (PT=0)
     b = next(ids)
     o = next(ids)
     conns = "".join('<connection refLocalId="%d" />' % s for s in ends)
+    parts.append('<inVariable localId="%d">%s<connectionPointOut /><expression>T#%dms</expression></inVariable>'
+                 % (pt, _pos(), int(round(r.pt_s * 1000))))
     parts.append(
         '<block localId="%d" typeName="TON" instanceName="%s">%s<inputVariables>'
         '<variable formalParameter="IN"><connectionPointIn>%s</connectionPointIn></variable>'
-        '<variable formalParameter="PT"><connectionPointIn><expression>T#%dms</expression></connectionPointIn></variable>'
+        '<variable formalParameter="PT"><connectionPointIn><connection refLocalId="%d" /></connectionPointIn></variable>'
         '</inputVariables><inOutVariables /><outputVariables><variable formalParameter="Q"><connectionPointOut /></variable>%s</outputVariables></block>'
-        % (b, escape(r.inst), _pos(), conns, int(round(r.pt_s * 1000)),
+        % (b, escape(r.inst), _pos(), conns, pt,
            '<variable formalParameter="ET"><connectionPointOut /></variable>' if r.et else "")
     )
     if r.et:

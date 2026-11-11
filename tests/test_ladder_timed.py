@@ -116,3 +116,27 @@ def test_xml_has_blocks_and_derived_ton_instances():
     assert types == {"TON", "Util.PID", "CTU", "R_TRIG"}  # comparacoes sao contatos com expressao
     assert len(root.findall(".//p:derived[@name='TON']", ns)) == 6
     assert len(root.findall(".//p:derived[@name='Util.PID']", ns)) == 6
+
+
+def test_invalid_thermocouple_is_not_reported_as_over_temperature():
+    # Achado do ensaio online: fio aberto le 32767 -> 3276,7 degC e travava tambem SOBRETEMP_400 (causa poluida)
+    for z in range(1, 6):
+        env = run({**NORMAL, f"TC_Z{z}_OK": False, f"TT_Z{z}": 3276.7})
+        assert env["TC_FAULT"] and env["FALHA_GERAL"], z
+        assert not env[f"SOBRETEMP_390_Z{z}"] and not env[f"SOBRETEMP_400_Z{z}"] and not env["SOBRETEMP_400"], z
+
+
+def test_every_ton_preset_is_wired_to_a_source_element_in_xml():
+    # Achado do ensaio online: 'expression' dentro do pino PT e PERDIDO pelo importador do CODESYS (PT=0, timers instantaneos).
+    # O PT de todo TON tem de ser um elemento inVariable referenciado pelo pino.
+    ns = {"p": "http://www.plcopen.org/xml/tc6_0200"}
+    root = ET.fromstring(PRG.xml())
+    in_vars = {e.get("localId"): e.findtext("p:expression", namespaces=ns) for e in root.iter("{%s}inVariable" % ns["p"])}
+    tons = [b for b in root.iter("{%s}block" % ns["p"]) if b.get("typeName") == "TON"]
+    assert len(tons) >= 6
+    for b in tons:
+        pins = {v.get("formalParameter"): v for v in b.find("p:inputVariables", ns)}
+        cp = pins["PT"].find("p:connectionPointIn", ns)
+        assert cp.find("p:expression", ns) is None, b.get("instanceName")
+        ref = cp.find("p:connection", ns).get("refLocalId")
+        assert in_vars.get(ref, "").startswith("T#"), (b.get("instanceName"), ref)

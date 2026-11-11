@@ -7,9 +7,9 @@ ZONES = range(1, 6)
 # NETWORK 02 - supervisao dos termopares / sobretemperatura
 NET02 = []
 for z in ZONES:
-    NET02.append(CmpRung(f"NETWORK 02 - Z{z} acima de 390 degC (pre-alarme)", "GT", f"TT_Z{z}", "390.0", f"SOBRETEMP_390_Z{z}"))
+    NET02.append(CmpRung(f"NETWORK 02 - Z{z} acima de 390 degC (pre-alarme; so com termopar valido)", "GT", f"TT_Z{z}", "390.0", f"SOBRETEMP_390_Z{z}", gate=f"TC_Z{z}_OK"))
 for z in ZONES:
-    NET02.append(CmpRung(f"NETWORK 02 - Z{z} acima de 400 degC (falha)", "GT", f"TT_Z{z}", "400.0", f"SOBRETEMP_400_Z{z}"))
+    NET02.append(CmpRung(f"NETWORK 02 - Z{z} acima de 400 degC (falha; so com termopar valido: fio aberto le 3276,7 e NAO e sobretemperatura)", "GT", f"TT_Z{z}", "400.0", f"SOBRETEMP_400_Z{z}", gate=f"TC_Z{z}_OK"))
 NET02.append(Rung("NETWORK 02 - SOBRETEMP_400: OR das cinco zonas",
                   P(*[C(f"SOBRETEMP_400_Z{z}") for z in ZONES]), [Coil("SOBRETEMP_400")]))
 NET02.append(Rung("NETWORK 02 - TC_FAULT: OR de termopar com qualidade ruim",
