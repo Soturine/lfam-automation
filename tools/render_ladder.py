@@ -230,6 +230,8 @@ def write_doc(index):
     lines = [
         "# Catálogo do Ladder (15 redes)",
         "",
+        "> Para entender **o que cada etapa faz e por quê**, leia [LADDER_EXPLICADO.md](LADDER_EXPLICADO.md). Aqui estão as imagens.",
+        "",
         "> **O que são estas imagens:** desenhos **gerados automaticamente** a partir do mesmo modelo que produz o PLCopen XML importado no "
         "CODESYS (`python tools/render_ladder.py`). Mostram a estrutura real (contatos, série/paralelo, blocos, bobinas), mas **não são capturas "
         "do editor do IDE**. O programa que roda no CLP virtual é o `.project` compilado a partir do mesmo XML.",
