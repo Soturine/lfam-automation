@@ -1,6 +1,6 @@
 # Como o projeto funciona (explicado para quem chegou agora)
 
-Este documento responde, em linguagem simples: **o que é, para que serve, como abrir, como a tela (SCADA) controla o Ladder e o que é real × simulado.** Se alguém de fora perguntar sobre o projeto, comece por aqui; as respostas rápidas estão na seção [Perguntas de quem chega de fora](#perguntas-de-quem-chega-de-fora).
+Este documento responde, em linguagem simples: **o que é, para que serve, como abrir, como a tela (SCADA) controla o Ladder e o que é real × simulado.** Se alguém de fora perguntar sobre o projeto, comece por aqui (depois: [INICIO_RAPIDO](INICIO_RAPIDO.md) para rodar, [LADDER_EXPLICADO](LADDER_EXPLICADO.md) para a lógica e [LIGACAO_BACKEND_CODESYS](LIGACAO_BACKEND_CODESYS.md) para a ponte com o CLP); as respostas rápidas estão na seção [Perguntas de quem chega de fora](#perguntas-de-quem-chega-de-fora).
 
 ## 1. Em uma frase
 Uma **extrusora de impressão 3D de grande formato (LFAM)** é controlada por um **programa em Ladder** (a linguagem gráfica dos CLPs) que roda num **CLP virtual (CODESYS Control Win)**; uma **tela web (SCADA)** mostra o processo e envia *pedidos* ao CLP por um servidor intermediário; como não há máquina real, uma **planta simulada** faz o papel dos sensores e atuadores.
