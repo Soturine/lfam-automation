@@ -1,0 +1,98 @@
+tag,iec_type,unit,scale_or_range,academic_addr,hmi_access,polarity,source,validation_status,notes
+SEG_OK,BOOL,,0/1,I0.0,R,1=ok,campo/simulador (HMI so solicita botoes),PENDENTE,Rele de seguranca armado
+BT_LIGA,BOOL,,0/1,I0.1,W-req,pulso,campo/simulador (HMI so solicita botoes),PENDENTE,Botao liga extrusao
+BT_DESLIGA,BOOL,,0/1,I0.2,W-req,0=desliga,campo/simulador (HMI so solicita botoes),PENDENTE,Botao desliga extrusao (NF)
+BT_RESET,BOOL,,0/1,I0.3,W-req,pulso,campo/simulador (HMI so solicita botoes),PENDENTE,Reconhece/reseta alarmes
+SEL_AUTO,BOOL,,0/1,I0.4,W-req,1=auto,campo/simulador (HMI so solicita botoes),PENDENTE,Seletor manual/auto
+BT_AQUEC,BOOL,,0/1,I0.5,W-req,pulso,campo/simulador (HMI so solicita botoes),PENDENTE,Liga aquecimento
+INV_PRONTO,BOOL,,0/1,I0.6,R,1=pronto,campo/simulador (HMI so solicita botoes),PENDENTE,Inversor pronto
+INV_FALHA,BOOL,,0/1,I0.7,R,1=falha,campo/simulador (HMI so solicita botoes),PENDENTE,Falha do inversor
+MOT_SOBRETEMP,BOOL,,0/1,I1.0,R,0=quente,campo/simulador (HMI so solicita botoes),PENDENTE,Sobretemp motor PTC
+FUNIL_BAIXO,BOOL,,0/1,I1.1,R,0=vazio,campo/simulador (HMI so solicita botoes),PENDENTE,Nivel baixo dosador
+SECADOR_OK,BOOL,,0/1,I1.2,R,1=ok,campo/simulador (HMI so solicita botoes),PENDENTE,Secador ok
+K1_CONF,BOOL,,0/1,I1.3,R,1=fechado,campo/simulador (HMI so solicita botoes),PENDENTE,Confirmacao K1
+DISJ_AQUEC,BOOL,,0/1,I1.4,R,1=ligado,campo/simulador (HMI so solicita botoes),PENDENTE,Disjuntor aquecedores
+VENT_OK,BOOL,,0/1,I1.5,R,1=ligada,campo/simulador (HMI so solicita botoes),PENDENTE,Ventilacao motor ligada
+SSR_Z1,BOOL,,0/1,Q0.0,R,1=ativo,CLP (escritor unico),PENDENTE,Resistencia zona 1 PWM
+SSR_Z2,BOOL,,0/1,Q0.1,R,1=ativo,CLP (escritor unico),PENDENTE,zona 2 PWM
+SSR_Z3,BOOL,,0/1,Q0.2,R,1=ativo,CLP (escritor unico),PENDENTE,zona 3 PWM
+SSR_Z4,BOOL,,0/1,Q0.3,R,1=ativo,CLP (escritor unico),PENDENTE,zona 4 PWM
+SSR_Z5,BOOL,,0/1,Q0.4,R,1=ativo,CLP (escritor unico),PENDENTE,bico PWM
+SSR_IR,BOOL,,0/1,Q0.5,R,1=ativo,CLP (escritor unico),PENDENTE,Aquecedor IR PWM
+K1_AQUEC,BOOL,,0/1,Q0.6,R,1=ativo,CLP (escritor unico),PENDENTE,Contator K1
+INV_RUN,BOOL,,0/1,Q0.7,R,1=ativo,CLP (escritor unico),PENDENTE,Gira rosca
+RESF_ON,BOOL,,0/1,Q1.0,R,1=ativo,CLP (escritor unico),PENDENTE,Resfriamento entrada
+ALIM_FUNIL,BOOL,,0/1,Q1.1,R,1=ativo,CLP (escritor unico),PENDENTE,Carregador funil
+LUZ_VERDE,BOOL,,0/1,Q8.0,R,1=ativo,CLP (escritor unico),PENDENTE,Extrusao
+LUZ_AMARELA,BOOL,,0/1,Q8.1,R,1=ativo,CLP (escritor unico),PENDENTE,Aquecendo/encharque
+LUZ_VERM_SIRENE,BOOL,,0/1,Q8.2,R,1=ativo,CLP (escritor unico),PENDENTE,Alarme
+VENT_MOTOR,BOOL,,0/1,Q8.3,R,1=ativo,CLP (escritor unico),PENDENTE,Ventilacao forcada
+PT_FUNDIDO_RAW,INT,,0..27648,IW64,R,,simulador,PENDENTE,0-10V
+PT_FUNDIDO_MPA,REAL,MPa,0..35,MD10,R,,CLP rede 01,PENDENTE,NORM_X+SCALE_X
+TT_SUBSTRATO_RAW,INT,,0..27648,IW66,R,,simulador,PENDENTE,pirometro
+TT_SUBSTRATO_C,REAL,degC,0..500,MD14,R,,CLP rede 01,PENDENTE,IR valido 20..480
+TT_Z1_RAW,INT,0.1 degC,0..4500 (32767=aberto no S7),IW96 / SM1231 ch0,R,,simulador,PENDENTE,hipotese do modulo; CODESYS usa flag TC_Z1_OK
+TT_Z1,REAL,degC,0..450,,R,,CLP rede 02,PENDENTE,
+TT_Z2_RAW,INT,0.1 degC,0..4500 (32767=aberto no S7),IW98 / SM1231 ch1,R,,simulador,PENDENTE,hipotese do modulo; CODESYS usa flag TC_Z2_OK
+TT_Z2,REAL,degC,0..450,,R,,CLP rede 02,PENDENTE,
+TT_Z3_RAW,INT,0.1 degC,0..4500 (32767=aberto no S7),IW100 / SM1231 ch2,R,,simulador,PENDENTE,hipotese do modulo; CODESYS usa flag TC_Z3_OK
+TT_Z3,REAL,degC,0..450,,R,,CLP rede 02,PENDENTE,
+TT_Z4_RAW,INT,0.1 degC,0..4500 (32767=aberto no S7),IW102 / SM1231 ch3,R,,simulador,PENDENTE,hipotese do modulo; CODESYS usa flag TC_Z4_OK
+TT_Z4,REAL,degC,0..450,,R,,CLP rede 02,PENDENTE,
+TT_Z5_RAW,INT,0.1 degC,0..4500 (32767=aberto no S7),IW104 / SM1231 ch4,R,,simulador,PENDENTE,hipotese do modulo; CODESYS usa flag TC_Z5_OK
+TT_Z5,REAL,degC,0..450,,R,,CLP rede 02,PENDENTE,
+TT_ZSR_RAW,INT,0.1 degC,0..4500 (32767=aberto no S7),IW106 / SM1231 ch5,R,,simulador,PENDENTE,hipotese do modulo; CODESYS usa flag TC_ZSR_OK
+TT_ZSR,REAL,degC,0..450,,R,,CLP rede 02,PENDENTE,
+TT_RESF_RAW,INT,0.1 degC,0..4500 (32767=aberto no S7),IW108 / SM1231 ch6,R,,simulador,PENDENTE,hipotese do modulo; CODESYS usa flag TC_RESF_OK
+TT_RESF,REAL,degC,0..450,,R,,CLP rede 02,PENDENTE,
+SP_Z1,REAL,degC,330..375 (Z5 bico 345..375),,W-req (validado),,receita/HMI,PENDENTE,inicial 340/350/350/360/360
+PWM_Z1,REAL,%,0..100,M4.0,R,,PID (Task_PID),PENDENTE,saida interna do PID
+Z1_ATEMP,BOOL,,TT>=330,M2.x,R,,CLP rede 08,PENDENTE,
+SOBRETEMP_390_Z1,BOOL,,TT>390,M2.0,R,,CLP rede 02,PENDENTE,
+SP_Z2,REAL,degC,330..375 (Z5 bico 345..375),,W-req (validado),,receita/HMI,PENDENTE,inicial 340/350/350/360/360
+PWM_Z2,REAL,%,0..100,M4.1,R,,PID (Task_PID),PENDENTE,saida interna do PID
+Z2_ATEMP,BOOL,,TT>=330,M2.x,R,,CLP rede 08,PENDENTE,
+SOBRETEMP_390_Z2,BOOL,,TT>390,M2.1,R,,CLP rede 02,PENDENTE,
+SP_Z3,REAL,degC,330..375 (Z5 bico 345..375),,W-req (validado),,receita/HMI,PENDENTE,inicial 340/350/350/360/360
+PWM_Z3,REAL,%,0..100,M4.2,R,,PID (Task_PID),PENDENTE,saida interna do PID
+Z3_ATEMP,BOOL,,TT>=330,M2.x,R,,CLP rede 08,PENDENTE,
+SOBRETEMP_390_Z3,BOOL,,TT>390,M2.2,R,,CLP rede 02,PENDENTE,
+SP_Z4,REAL,degC,330..375 (Z5 bico 345..375),,W-req (validado),,receita/HMI,PENDENTE,inicial 340/350/350/360/360
+PWM_Z4,REAL,%,0..100,M4.3,R,,PID (Task_PID),PENDENTE,saida interna do PID
+Z4_ATEMP,BOOL,,TT>=330,M2.x,R,,CLP rede 08,PENDENTE,
+SOBRETEMP_390_Z4,BOOL,,TT>390,M2.3,R,,CLP rede 02,PENDENTE,
+SP_Z5,REAL,degC,330..375 (Z5 bico 345..375),,W-req (validado),,receita/HMI,PENDENTE,inicial 340/350/350/360/360
+PWM_Z5,REAL,%,0..100,M4.4,R,,PID (Task_PID),PENDENTE,saida interna do PID
+Z5_ATEMP,BOOL,,TT>=330,M2.x,R,,CLP rede 08,PENDENTE,
+SOBRETEMP_390_Z5,BOOL,,TT>390,M2.4,R,,CLP rede 02,PENDENTE,
+SOBRETEMP_400,BOOL,,qualquer zona>400,M2.5,R,,CLP rede 02,PENDENTE,
+TC_FAULT,BOOL,,,M0.0,R,,CLP rede 02,PENDENTE,termopar aberto
+PWM_IR,REAL,%,0..100,M4.5,R,,PID IR,PENDENTE,
+SP_IR_C,REAL,degC,20..480,,W-req (validado),,HMI/receita,PENDENTE,definido em teste
+EST_AQUEC,BOOL,,,M1.0,R,,CLP/simulador,PENDENTE,aquecimento
+EST_ENCHARQUE,BOOL,,,M1.1,R,,CLP/simulador,PENDENTE,todas zonas >=330
+EST_PRONTO,BOOL,,,M1.2,R,,CLP/simulador,PENDENTE,pronto
+EST_EXTRUSAO,BOOL,,,M1.3,R,,CLP/simulador,PENDENTE,rosca em operacao
+FALHA_GERAL,BOOL,,,M1.4,R,,CLP/simulador,PENDENTE,falha memorizada
+M_CAUSA,BOOL,,,M1.5,R,,CLP/simulador,PENDENTE,existe causa ativa
+ENCH_OK,BOOL,,,M1.6,R,,CLP/simulador,PENDENTE,encharque 15 min ok
+FALHA_RESF_2M,BOOL,,,M3.0,R,,CLP/simulador,PENDENTE,TT_RESF>100 por 2min
+FALHA_SEM_MAT,BOOL,,,M3.1,R,,CLP/simulador,PENDENTE,sem material 60s
+FALHA_VENT_10S,BOOL,,,M3.2,R,,CLP/simulador,PENDENTE,sem ventilacao 10s
+FALHA_K1_COL,BOOL,,,M3.3,R,,CLP/simulador,PENDENTE,K1 colado 1s
+ALM_PRESSAO_16_5,BOOL,,,M3.4,R,,CLP/simulador,PENDENTE,"pressao>=16,5"
+ALM_ZSR_BAIXA,BOOL,,,M3.6,R,,CLP/simulador,PENDENTE,TT_ZSR<220
+ROBO_EXT_PRONTA,BOOL,,,,R,,CLP/simulador,PENDENTE,sinal ao robo
+ROBO_CMD_EXTR,BOOL,,,,R (simulador),,CLP/simulador,PENDENTE,comando extrudar do robo
+ROBO_EM_MOV,BOOL,,,,R (simulador),,CLP/simulador,PENDENTE,robo em movimento
+PRESSAO_ALTA_17,BOOL,,PT>=17,,R,,CLP rede 04,PENDENTE,causa de FALHA_GERAL
+SP_RPM_OPERADOR,REAL,rpm,17..34,MW20,W-req (validado),,HMI/robo,PENDENTE,
+REF_RPM_LIM,REAL,rpm,17..34,MD28,R,,CLP rede 12,PENDENTE,apos -10% e LIMIT
+INV_REF,INT,,escala inversor,QW70,R,,CLP rede 12 (escritor unico),PENDENTE,
+INV_RPM_REAL,REAL,rpm,0..34,,R,,simulador/inversor,PENDENTE,PROFINET no projeto Siemens
+INV_CORRENTE_A,REAL,A,,,R,,simulador/inversor,PENDENTE,
+INV_TORQUE_PCT,REAL,%,,,R,,simulador/inversor,PENDENTE,
+CONT_LOTES,INT,,,MW30,R,,CLP rede 14 (CTU),PENDENTE,
+HMI_RESET_LOTES,BOOL,,pulso,M5.0,W-req,,HMI,PENDENTE,
+PLC_HEARTBEAT,UINT,,contador,,R,,CLP,PENDENTE,qualidade/comunicacao HMI
+PLC_CONNECTED,BOOL,,,,R,,gateway,PENDENTE,"derivado do heartbeat, nunca da HMI"
