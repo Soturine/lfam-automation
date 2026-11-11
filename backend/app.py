@@ -41,7 +41,11 @@ def build_engine() -> DemoEngine:
     """LFAM_MODE=demo (padrao) ou plc. No modo plc as credenciais OPC UA vem SOMENTE do ambiente e nunca sao registradas."""
     if os.environ.get("LFAM_MODE", "demo").lower() == "plc":
         t = OpcUaTransport(os.environ.get("LFAM_OPCUA_URL", "opc.tcp://localhost:4840"), os.environ.get("LFAM_OPCUA_USER"),
-                           os.environ.get("LFAM_OPCUA_PASSWORD"), os.environ.get("LFAM_OPCUA_ROOT"))
+                           os.environ.get("LFAM_OPCUA_PASSWORD"), os.environ.get("LFAM_OPCUA_ROOT"),
+                           timeout=float(os.environ.get("LFAM_OPCUA_TIMEOUT", "10")),
+                           security=os.environ.get("LFAM_OPCUA_SECURITY") or None,
+                           cert_path=os.environ.get("LFAM_OPCUA_CERT", "work/pki/client_cert.der"),
+                           key_path=os.environ.get("LFAM_OPCUA_KEY", "work/pki/client_key.pem"))
         return DemoEngine(transport=t)
     return DemoEngine(transport=DemoTransport())
 

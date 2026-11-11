@@ -17,6 +17,7 @@ from codesys.generator import program as PRG
 from codesys.generator.ld import scan
 
 log = logging.getLogger("lfam.transport")
+READ_BATCH = 50
 
 # asyncua em DEBUG imprime a ativacao de sessao COM a senha em claro: nunca permitir abaixo de WARNING.
 for _name in ("asyncua", "asyncua.client", "asyncua.uaprotocol", "asyncua.common", "asyncua.server", "asyncua.client.ua_client"):
@@ -64,12 +65,15 @@ class OpcUaTransport:
     mode = "PLC"
 
     def __init__(self, url: str, username: str | None = None, password: str | None = None, root_hint: str | None = None,
-                 timeout: float = 2.0, clock=time.monotonic):
+                 timeout: float = 2.0, clock=time.monotonic, security: str | None = None,
+                 cert_path: str | None = None, key_path: str | None = None):
         from asyncua.sync import Client  # import tardio: o modo DEMO nao precisa da biblioteca
 
         self._Client = Client
         self.url, self.username, self.password, self.timeout = url, username, password, timeout
         self.root_hint = root_hint
+        # security ex.: "Basic256Sha256,SignAndEncrypt" (exige cert/chave do cliente; senha so segue por canal criptografado)
+        self.security, self.cert_path, self.key_path = security, cert_path, key_path
         self._client = None
         self._nodes: dict = {}
         self._types = {k: t for k, t in PRG.variables().items() if t not in _SKIP_TYPES}
@@ -83,6 +87,9 @@ class OpcUaTransport:
     def connect(self) -> None:
         self.close()
         c = self._Client(self.url, timeout=self.timeout)
+        if self.security:
+            c.set_security_string(f"{self.security},{self.cert_path},{self.key_path}")
+            c.application_uri = "urn:lfam:backend"
         if self.username:
             c.set_user(self.username)
             c.set_password(self.password or "")
@@ -161,7 +168,9 @@ class OpcUaTransport:
             if writes:
                 self._write(writes, vals)
             names = list(self._nodes)
-            values = self._client.read_values([self._nodes[n] for n in names])
+            values = []
+            for i in range(0, len(names), READ_BATCH):  # o servidor limita operacoes por pedido (BadTooManyOperations)
+                values += self._client.read_values([self._nodes[n] for n in names[i:i + READ_BATCH]])
         except Exception as e:  # noqa: BLE001
             self.connected = False
             self.last_error = f"{type(e).__name__}: {e}"
